@@ -320,3 +320,5 @@ void AEnemyBaseClass::PainForgetter()
 		RememberPain = 0;
 	}
 }
+
+// test
