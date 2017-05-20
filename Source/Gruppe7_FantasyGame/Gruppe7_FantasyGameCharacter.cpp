@@ -17,7 +17,7 @@
 #include "FantasyGameInstance.h"
 #include "Runtime/CoreUObject/Public/UObject/ConstructorHelpers.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
-#include "CollectionPickup.h"
+#include "CrystalPawn.h"
 #include "Gruppe7_FantasyGameCharacter.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -682,7 +682,7 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 	}
 
 	// pickup should depend on current level?
-	if (OtherActor->IsA(ACollectionPickup::StaticClass()))
+	if (OtherActor->IsA(ACrystalPawn::StaticClass()))
 	{
 		OtherActor->Destroy();
 		UGameplayStatics::PlaySound2D(GetWorld(), CollectionPickupSound, 1.f, 1.f, 0.f);

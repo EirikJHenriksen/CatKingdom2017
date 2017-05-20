@@ -1,10 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Gruppe7_FantasyGame.h"
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BehaviorTreeComponent.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include "EnemyBaseClass.h"
 #include "Enemy_AI_Controller.h"
 
@@ -15,11 +11,11 @@ AEnemy_AI_Controller::AEnemy_AI_Controller()
 	State = StateEnum::IDLE;
 }
 
-void AEnemy_AI_Controller::Possess(APawn *InPawn)
-{
-	Super::Possess(InPawn);
-	AEnemyBaseClass *Char = Cast<AEnemyBaseClass>(InPawn);
-}
+//void AEnemy_AI_Controller::Possess(APawn *InPawn)
+//{
+//	Super::Possess(InPawn);
+//	AEnemyBaseClass *Char = Cast<AEnemyBaseClass>(InPawn);
+//}
 //
 // Called every frame
 void AEnemy_AI_Controller::Tick(float DeltaTime)

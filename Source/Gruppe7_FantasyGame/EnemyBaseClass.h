@@ -37,7 +37,7 @@ public:
 
 	// CollectionPickup
 	UPROPERTY(EditAnywhere, Category = "Spawning")
-		TSubclassOf<class ACollectionPickup> CollectionPickupBlueprint;
+		TSubclassOf<class ACrystalPawn> CrystalBlueprint;
 
 	/////////////////////////////////////
 	// VFX.

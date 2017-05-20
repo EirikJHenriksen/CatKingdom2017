@@ -11,7 +11,7 @@
 #include "FantasyGameInstance.h"
 #include "ManaPotion.h"
 #include "HealthPotion.h"
-#include "CollectionPickup.h"
+#include "CrystalPawn.h"
 #include "EnemyAttackBox.h"
 
 // Sets default values
@@ -207,7 +207,7 @@ void AEnemyBaseClass::DeathCheck()
 
 		if (	Cast<UFantasyGameInstance>(GetGameInstance())->GetCurrentLevel() != 3	) // do this unless it is the boss battle
 		{
-			GetWorld()->SpawnActor<ACollectionPickup>(CollectionPickupBlueprint, GetActorLocation() + FVector(0.f, -30.f, 0.f), GetActorRotation());
+			GetWorld()->SpawnActor<ACrystalPawn>(CrystalBlueprint, GetActorLocation() + FVector(0.f, -30.f, 0.f), GetActorRotation());
 		}
 		
 

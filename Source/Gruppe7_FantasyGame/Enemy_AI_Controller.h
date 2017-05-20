@@ -28,7 +28,7 @@ class GRUPPE7_FANTASYGAME_API AEnemy_AI_Controller : public AAIController
 public:
 	AEnemy_AI_Controller();
 
-	virtual void Possess(APawn *InPawn) override;
+	//virtual void Possess(APawn *InPawn) override;
 
 
 	virtual void Tick(float DeltaTime) override;
