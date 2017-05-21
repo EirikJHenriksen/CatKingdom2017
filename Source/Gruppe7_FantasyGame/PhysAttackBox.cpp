@@ -22,9 +22,6 @@ APhysAttackBox::APhysAttackBox()
 void APhysAttackBox::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// DEBUG.
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, TEXT("PHYSICAL ATTACK!"));
 }
 
 // Called every frame

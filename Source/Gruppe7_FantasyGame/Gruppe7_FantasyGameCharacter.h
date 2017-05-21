@@ -92,6 +92,8 @@ public:
 
 		void Respawner();
 
+		void MagiSound();
+
 	// Functions that deal with Sound FX
 		int RandomInt;
 
@@ -109,9 +111,6 @@ public:
 		USoundBase* AttackSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
-		USoundBase* AttackSound02;
-
-	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* YellSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
@@ -121,9 +120,6 @@ public:
 		USoundBase* DamageSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
-		USoundBase* DamageSound02;
-
-	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* PainSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
@@ -131,6 +127,18 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* CollectionPickupSound;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+		USoundBase* PwrUpSound;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+		USoundBase* PwrUpOverSound;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+		USoundBase* PotionSound;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+		USoundBase* SpellCastSound;
 
 	// VFX.
 	UPROPERTY(EditAnywhere, Category = "VFX")

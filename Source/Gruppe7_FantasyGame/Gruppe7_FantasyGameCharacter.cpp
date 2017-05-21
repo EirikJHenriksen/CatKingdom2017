@@ -12,8 +12,6 @@
 #include "WizardCloud.h"
 #include "EnemyAttackBox.h"
 #include "BossSpellFire.h"
-#include "BossSpellWater.h"
-#include "BossSpellNature.h"
 #include "FantasyGameInstance.h"
 #include "Runtime/CoreUObject/Public/UObject/ConstructorHelpers.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
@@ -180,7 +178,7 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 	FHitResult Hit;
 	bool HitResult = false;
 
-	HitResult = GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_WorldStatic), true, Hit);
+	HitResult = GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), true, Hit);
 
 	if (HitResult)
 	{
@@ -331,7 +329,10 @@ void AGruppe7_FantasyGameCharacter::PhysAttack()
 void AGruppe7_FantasyGameCharacter::MagiProjectile()
 {	
 	if (!MagicDelay)
-	{
+	{	
+		//Spiller av SFX.
+		MagiSound();
+
 		//Set the required mana for casting this spell.
 		float ManaRequirement{ 0.05f };
 
@@ -355,6 +356,9 @@ void AGruppe7_FantasyGameCharacter::MagiFireCone()
 	SpellIsContinuous = true;
 	SpellDelay = 30.f;
 
+	//Spiller av SFX. - fiks så det ikke looper på en rar måte
+	MagiSound();
+
 	//Set the required mana for casting this spell.
 	float ManaRequirement{ 0.075f };
 
@@ -374,6 +378,9 @@ void AGruppe7_FantasyGameCharacter::MagiThornCircle()
 {
 	//Set the required mana for casting this spell.
 	float ManaRequirement{ 0.1f };
+	
+	//Spiller av SFX.
+	MagiSound();
 
 	UWorld* World = GetWorld();
 	if (World && (Mana >= ManaRequirement))
@@ -390,16 +397,19 @@ void AGruppe7_FantasyGameCharacter::MagiThornCircle()
 void AGruppe7_FantasyGameCharacter::MagiHealing()
 {	
 	SpellIsContinuous = true;
-	SpellDelay = 1.f;
+	SpellDelay = 15.f;
 
 	// DEBUG.
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("ATTEMPT AT HEALING!!!"));
 
+	//Spiller av SFX.  - LEGG TIL EN FORM FOR DELAY SÅ SFX FUNGERER!!!
+	//MagiSound();
+
 	if (Health != 1.f && Mana >= 0.f)
 	{
 		//Set the required mana for casting this spell.
-		float ManaRequirement{ 0.02f };
-		float HealthRestoration{ 0.01f };
+		float ManaRequirement{ 0.15f };
+		float HealthRestoration{ 0.05f };
 
 		// DEBUG.
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("HEALING!!!"));
@@ -412,6 +422,7 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 
 void AGruppe7_FantasyGameCharacter::MagiAttack()
 {	
+
 	switch (SpellSelect)
 	{
 	case 0:
@@ -442,7 +453,7 @@ void AGruppe7_FantasyGameCharacter::ManaPotion(float ManaRestore)
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ManaPickUpFX, GetTransform(), true);
 
 	//Spiller av SFX.
-	//UGameplayStatics::PlaySound2D(GetWorld(), ManaPickUpSound, 1.f, 1.f, 0.f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::HealthPotion(float HealthRestore)
@@ -453,7 +464,7 @@ void AGruppe7_FantasyGameCharacter::HealthPotion(float HealthRestore)
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HealthPickUpFX, GetTransform(), true);
 
 	//Spiller av SFX.
-	//UGameplayStatics::PlaySound2D(GetWorld(), HealthPickUpSound, 1.f, 1.f, 0.f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
@@ -471,6 +482,8 @@ void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
 
 	PlayerMovementSpeed = 1200.f;
 	GetCharacterMovement()->MaxWalkSpeed = PlayerMovementSpeed;
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PwrUpSound, GetActorLocation(), 1.f, 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver()
@@ -484,6 +497,8 @@ void AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver()
 	GetCharacterMovement()->MaxWalkSpeed = PlayerMovementSpeed;
 
 	GetWorld()->GetTimerManager().ClearTimer(SpeedPowerUpTimerHandle);
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PwrUpOverSound, GetActorLocation(), 1.f, 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::Respawner()
@@ -519,25 +534,15 @@ void AGruppe7_FantasyGameCharacter::Respawner()
 	CollectionPickup = 0;
 }
 
-void AGruppe7_FantasyGameCharacter::PlayerDamageSound()
+void AGruppe7_FantasyGameCharacter::MagiSound()
 {
-	//Random hit sound.
-	int random = FMath::RandRange(0,1);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpellCastSound, GetActorLocation(), 0.6f, 1.f);
+}
 
-	switch (random)
-	{
-	default:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SOUND! FUNCTION: PlayerDamageSound()"));
-		break;
-	case 0:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Crash!"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound01, GetActorLocation());
-		break;
-	case 1:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Smack!"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound02, GetActorLocation());
-		break;
-	}
+void AGruppe7_FantasyGameCharacter::PlayerDamageSound()
+{	
+	float randomPitch = FMath::RandRange(0.8f, 1.2f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound01, GetActorLocation(), 1.f, randomPitch);
 
 	//Random scream sound.
 	RandomInt = FMath::RandRange(0, 1);
@@ -559,29 +564,14 @@ void AGruppe7_FantasyGameCharacter::PlayerDamageSound()
 }
 
 void AGruppe7_FantasyGameCharacter::PlayerAttackSound()
-{
-	//Random attack sound.
+{	
+	float randomPitch = FMath::RandRange(0.8f, 1.2f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound01, GetActorLocation(), 1.f, randomPitch);
+
+	//Random yell sound.
 	RandomInt = FMath::RandRange(0, 1);
 
 	switch (RandomInt)
-	{
-	default:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SOUND! FUNCTION: PlayerAttackSound()"));
-		break;
-	case 0:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("SWOOSH!"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound01, GetActorLocation());
-		break;
-	case 1:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("SWISH!"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound02, GetActorLocation());
-		break;
-	}
-
-	//Random yell sound.
-	int random = FMath::RandRange(0, 1);
-
-	switch (random)
 	{
 	default:
 		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SOUND! FUNCTION: PlayerAttackSound()"));
@@ -625,28 +615,6 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 	}
 
 	if (OtherActor->IsA(ABossSpellFire::StaticClass()))
-	{
-		OtherActor->Destroy();
-
-		Cast<UFantasyGameInstance>(GetGameInstance())->DrainHealth(DamageFromBoss);
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
-
-		PlayerDamageSound();
-	}
-
-	if (OtherActor->IsA(ABossSpellWater::StaticClass()))
-	{
-		OtherActor->Destroy();
-
-		Cast<UFantasyGameInstance>(GetGameInstance())->DrainHealth(DamageFromBoss);
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
-
-		PlayerDamageSound();
-	}
-
-	if (OtherActor->IsA(ABossSpellNature::StaticClass()))
 	{
 		OtherActor->Destroy();
 

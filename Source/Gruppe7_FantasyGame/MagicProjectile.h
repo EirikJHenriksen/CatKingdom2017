@@ -30,8 +30,15 @@ public:
 	UPROPERTY(EditAnywhere)
 		USphereComponent* CollisionComponent;
 
-	//UPROPERTY(EditAnywhere)
-		//USoundBase* ExplosionSound;
+	///////////////////////////////////////////
+	// SFX STUFF
+	// Sets up attenuation for sound.
+	UPROPERTY(EditAnywhere)
+		USoundAttenuation* WaterImpactAtt;
+
+	// Sounds
+	UPROPERTY(EditAnywhere)
+		USoundBase* WaterImpactSound;
 
 	UPROPERTY(EditAnywhere)
 		float TimeBeforeDestroy = 10.f;

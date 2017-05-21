@@ -18,8 +18,6 @@ AMagicProjectile::AMagicProjectile()
 
 	CollisionComponent->OnComponentHit.AddDynamic(this, &AMagicProjectile::OnHit);
 
-	//CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AMagicProjectile::OnOverlap);
-
 	// Set the root component to be the collision component.
 	RootComponent = CollisionComponent;
 
@@ -32,6 +30,9 @@ AMagicProjectile::AMagicProjectile()
 	ProjectileMovementComponent->bShouldBounce = false;
 	ProjectileMovementComponent->Bounciness = 1.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
+
+	// Attenuation
+	WaterImpactAtt = CreateDefaultSubobject<USoundAttenuation>(TEXT("WaterImpactlAttenuation"));
 }
 
 // Called when the game starts or when spawned
@@ -73,7 +74,11 @@ void AMagicProjectile::Destroy()
 {
 	Super::Destroy();
 
+
+	//Spiller av SFX.
+	float RandomValue = FMath::RandRange(0.8f, 1.2f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), WaterImpactSound, GetActorLocation(), 0.5f, RandomValue, 0.f, WaterImpactAtt);
+
 	//Spiller av VFX.
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactMagicFX, GetTransform(), true);
-	//Lyd effekter?
 }
