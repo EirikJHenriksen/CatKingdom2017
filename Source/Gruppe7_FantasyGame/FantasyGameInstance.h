@@ -14,6 +14,11 @@ class GRUPPE7_FANTASYGAME_API UFantasyGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 public:
+	// to display the cost of the next "crystal door"
+	// starts as 1 because that's the cost of the first door
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Crystal)
+	int NextCost = 1;
+
 	// Sets default values for main character.
 
 	UFantasyGameInstance(const FObjectInitializer& ObjectInitializer);
