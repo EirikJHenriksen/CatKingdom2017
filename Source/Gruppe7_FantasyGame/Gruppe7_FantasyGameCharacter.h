@@ -94,10 +94,11 @@ public:
 
 		void MagiSound();
 
+
 	// Functions that deal with Sound FX
 		int RandomInt;
 
-		void PlayerDamageSound();
+		void PlayerDamageSound(int type);
 
 		void PlayerAttackSound();
 
@@ -118,6 +119,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* DamageSound01;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+		USoundBase* ShockSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* PainSound01;

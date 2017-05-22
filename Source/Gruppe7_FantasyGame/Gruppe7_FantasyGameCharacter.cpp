@@ -178,7 +178,7 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 	FHitResult Hit;
 	bool HitResult = false;
 
-	HitResult = GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), true, Hit);
+	HitResult = GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), true, Hit);
 
 	if (HitResult)
 	{
@@ -451,9 +451,6 @@ void AGruppe7_FantasyGameCharacter::ManaPotion(float ManaRestore)
 
 	//Spiller av VFX.
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ManaPickUpFX, GetTransform(), true);
-
-	//Spiller av SFX.
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::HealthPotion(float HealthRestore)
@@ -462,9 +459,6 @@ void AGruppe7_FantasyGameCharacter::HealthPotion(float HealthRestore)
 
 	//Spiller av VFX.
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HealthPickUpFX, GetTransform(), true);
-
-	//Spiller av SFX.
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
@@ -483,7 +477,7 @@ void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
 	PlayerMovementSpeed = 1200.f;
 	GetCharacterMovement()->MaxWalkSpeed = PlayerMovementSpeed;
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PwrUpSound, GetActorLocation(), 1.f, 1.f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PwrUpSound, GetActorLocation(), 2.f, 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver()
@@ -498,7 +492,7 @@ void AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver()
 
 	GetWorld()->GetTimerManager().ClearTimer(SpeedPowerUpTimerHandle);
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PwrUpOverSound, GetActorLocation(), 1.f, 1.f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PwrUpOverSound, GetActorLocation(), 2.f, 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::Respawner()
@@ -539,10 +533,21 @@ void AGruppe7_FantasyGameCharacter::MagiSound()
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpellCastSound, GetActorLocation(), 0.6f, 1.f);
 }
 
-void AGruppe7_FantasyGameCharacter::PlayerDamageSound()
+void AGruppe7_FantasyGameCharacter::PlayerDamageSound(int type)
 {	
 	float randomPitch = FMath::RandRange(0.8f, 1.2f);
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound01, GetActorLocation(), 1.f, randomPitch);
+
+	// Checks what type of damage.
+	if (type == 1)
+	{	
+		// Physical damage.
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound01, GetActorLocation(), 1.f, randomPitch);
+	}
+	else if (type == 2)
+	{	
+		// Magical damage.
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShockSound01, GetActorLocation(), 1.f, randomPitch);
+	}
 
 	//Random scream sound.
 	RandomInt = FMath::RandRange(0, 1);
@@ -611,7 +616,7 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
 
-		PlayerDamageSound();
+		PlayerDamageSound(1);
 	}
 
 	if (OtherActor->IsA(ABossSpellFire::StaticClass()))
@@ -622,7 +627,7 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
 
-		PlayerDamageSound();
+		PlayerDamageSound(2);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -640,6 +645,9 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 		OtherActor->Destroy();
 
 		AGruppe7_FantasyGameCharacter::ManaPotion(0.25f);
+
+		//Spiller av SFX.
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
 	}
 
 	if (OtherActor->IsA(AHealthPotion::StaticClass()) && Health < 1.f)
@@ -647,6 +655,9 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 		OtherActor->Destroy();
 
 		AGruppe7_FantasyGameCharacter::HealthPotion(0.25f);
+
+		//Spiller av SFX.
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
 	}
 
 	// pickup should depend on current level?
