@@ -411,6 +411,9 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 		float ManaRequirement{ 0.15f };
 		float HealthRestoration{ 0.05f };
 
+		//Spiller av VFX.
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HealFX, GetTransform(), true);
+
 		// DEBUG.
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("HEALING!!!"));
 

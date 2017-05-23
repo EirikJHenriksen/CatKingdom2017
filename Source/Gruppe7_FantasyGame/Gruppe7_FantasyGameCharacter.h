@@ -154,6 +154,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem* HitFX;
 
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem* HealFX;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 		int CollectionPickup = 0;
 
