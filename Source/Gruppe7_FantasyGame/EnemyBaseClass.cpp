@@ -29,6 +29,9 @@ AEnemyBaseClass::AEnemyBaseClass()
 	GetCharacterMovement()->AirControl = 0.f;
 	GetCharacterMovement()->AirControlBoostMultiplier = 0.f;
 	GetCharacterMovement()->AirControlBoostVelocityThreshold = 0.f;
+
+	// Attenuation
+	DamageAtt = CreateDefaultSubobject<USoundAttenuation>(TEXT("WaterImpactlAttenuation"));
 }
 
 // Called when the game starts or when spawned
@@ -86,7 +89,8 @@ void AEnemyBaseClass::MeleeAttack()
 
 		GetWorld()->SpawnActor<AEnemyAttackBox>(EnemyAttackBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
 
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyMeleeAttackSound, GetActorLocation());
+		float RandomValue = FMath::RandRange(0.8f, 1.2f);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyMeleeAttackSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
 	}
 }
 
@@ -112,6 +116,10 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 
 		// Pushes the enemy back. They get slowed down for some time. (FORCE, DURATION).
 		EnemyIsHit(1000.f, 1.5f);
+
+		//Spiller av SFX.
+		float RandomValue = FMath::RandRange(0.8f, 1.2f);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PhysImpactSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
 	}
 
 	if (OtherActor->IsA(AKnockbackSphere::StaticClass()))
@@ -142,6 +150,10 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		default:
 			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("error - EnemyBaseClass - attacked"));
 		}
+
+		//Spiller av SFX.
+		float RandomValue = FMath::RandRange(0.8f, 1.2f);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WaterImpactSound, GetActorLocation(), 1.f, RandomValue, 0.f, DamageAtt);
 	}
 
 	// Circle of thorns - NATURE
@@ -200,7 +212,9 @@ void AEnemyBaseClass::DeathCheck()
 {
 	// DIE
 	if (HealthPoints <= 0.f)
-	{
+	{	
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Sett inn alternativ for dødslyder.
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyDeathSound, GetActorLocation());
 
 		Destroy();
@@ -227,10 +241,10 @@ void AEnemyBaseClass::DeathCheck()
 			}
 		}
 	}
-	// NOT DIE - but gets hurt
-	else 
+	else
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyHurtSound, GetActorLocation());
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Sett inn alternativ for damage lyder.
 	}
 }
 

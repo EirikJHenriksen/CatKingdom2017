@@ -52,6 +52,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerVariables)
 		bool IsFirstTimeMenuCalled = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerVariables)
+		bool MainMenuIsNotActive = false;
+
 	FVector PlayerLocation;
 
 	FVector PlayerVelocity;

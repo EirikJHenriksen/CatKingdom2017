@@ -39,6 +39,20 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<class ACrystalPawn> CrystalBlueprint;
 
+	///////////////////////////////////////////
+	// SFX STUFF
+	// Sets up attenuation for sound.
+	UPROPERTY(EditAnywhere)
+		USoundAttenuation* DamageAtt;
+
+	// Sounds
+	UPROPERTY(EditAnywhere)
+		USoundBase* WaterImpactSound;
+
+	// Sounds
+	UPROPERTY(EditAnywhere)
+		USoundBase* PhysImpactSound;
+
 	/////////////////////////////////////
 	// VFX.
 
