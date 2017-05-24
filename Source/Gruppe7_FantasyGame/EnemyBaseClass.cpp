@@ -90,7 +90,7 @@ void AEnemyBaseClass::MeleeAttack()
 		GetWorld()->SpawnActor<AEnemyAttackBox>(EnemyAttackBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
 
 		float RandomValue = FMath::RandRange(0.8f, 1.2f);
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyMeleeAttackSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
 	}
 }
 
@@ -116,10 +116,6 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 
 		// Pushes the enemy back. They get slowed down for some time. (FORCE, DURATION).
 		EnemyIsHit(1000.f, 1.5f);
-
-		//Spiller av SFX.
-		float RandomValue = FMath::RandRange(0.8f, 1.2f);
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PhysImpactSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
 	}
 
 	if (OtherActor->IsA(AKnockbackSphere::StaticClass()))
@@ -201,6 +197,10 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("error - EnemyBaseClass - attacked"));
 		}
 	}
+
+	//Spiller av SFX.
+	float RandomValue = FMath::RandRange(0.8f, 1.2f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyHurtSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
 
 	// every time enemy is hurt it will follow player for 150 frames, no matter what
 	RememberPain = 150.f;
@@ -334,5 +334,3 @@ void AEnemyBaseClass::PainForgetter()
 		RememberPain = 0;
 	}
 }
-
-// test

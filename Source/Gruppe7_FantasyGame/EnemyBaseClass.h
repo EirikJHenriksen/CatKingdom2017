@@ -138,15 +138,14 @@ private:
 	float DamageMyEqual = 25.f;
 	float DamageLeastEffective = 10.f;
 
-	// Sounds
-	UPROPERTY(EditAnywhere)
+	// SFX.
+	UPROPERTY(EditAnywhere, Category = "SFX")
+		USoundBase* AttackSound;
+	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* EnemyDeathSound;
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* EnemyHurtSound;
 
-	UPROPERTY(EditAnywhere)
-		USoundBase* EnemyMeleeAttackSound;
 
 	//lets try to make enemies follow you if they are hurt
 	float RememberPain = 0;
