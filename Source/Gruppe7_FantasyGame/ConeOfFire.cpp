@@ -61,7 +61,7 @@ void AConeOfFire::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 {
 	if (OtherActor->IsA(ABossSpellFire::StaticClass()))
 	{
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Purple, TEXT("IMPACT!"));
+		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Purple, TEXT("IMPACT!"));
 		OtherActor->Destroy();
 	}
 }

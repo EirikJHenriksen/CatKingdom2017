@@ -26,6 +26,25 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/////////////////////////////////////////
+	// Voice.
+	UPROPERTY(EditAnywhere)
+		USoundBase* BossIntro;
+
+	/////////////////////////////////////////
+	// SFX.
+	UPROPERTY(EditAnywhere)
+		USoundBase* MagicAttackSound;
+
+	UPROPERTY(EditAnywhere)
+		USoundBase* TeleportSound;
+
+	/////////////////////////////////////////
+	// VFX.
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem *WaterHitFX;
+
+	/////////////////////////////////////////
 	// Stats.
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
@@ -78,6 +97,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
 		bool IsDead;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
+		bool IsTeleporting;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
+		bool animIsAttacking;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
+		bool animStoppedAttacking;
+		
+	FTimerHandle AnimDyingTimerHandle;
+
+	FTimerHandle AnimAttackTimerHandle;
+
+	FTimerHandle AnimTeleportTimerHandle;
+
 	/////////////////////////////////////////
 	// TELEPORTATION VARIABLES.
 	void Teleport();
@@ -96,10 +130,10 @@ public:
 	FTimerHandle FirstTeleportTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Teleport timers")
-		float RandomMin = 5.f;
+		float RandomMin = 10.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Teleport timers")
-		float RandomMax = 10.f;
+		float RandomMax = 15.f;
 
 	float RandomTeleportTime = 0.f;
 
@@ -131,11 +165,19 @@ public:
 
 	//////////////////////////////////////
 	// Action functions.
-	void Attack();
+	void DoSomething();
+
+	void AttackFirstStage();
+
+	void AttackSecondStage();
 
 	void SummonEnemy();
 
+	int TheActionInt = 0;
+
 	bool isAttacking;
+
+	bool isDoingSomething;
 
 	FTimerHandle AttackTimerHandle;
 
@@ -151,6 +193,8 @@ public:
 	// Overlap function
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	void IsNowDead();
 	
 	void DeathCheck();
 

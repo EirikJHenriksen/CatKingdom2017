@@ -106,13 +106,16 @@ void AEnemyBaseClass::UpdateDistance()
 // When attacked by player
 void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	// Physic attack
+	// Physical attack
 	if (OtherActor->IsA(APhysAttackBox::StaticClass()))
 	{
 		OtherActor->Destroy();
 		HealthPoints -= DamageMelee;
 		
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
+
+		float RandomValue = FMath::RandRange(0.8f, 1.2f);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PhysImpactSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
 
 		// Pushes the enemy back. They get slowed down for some time. (FORCE, DURATION).
 		EnemyIsHit(1000.f, 1.5f);
@@ -150,6 +153,9 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		//Spiller av SFX.
 		float RandomValue = FMath::RandRange(0.8f, 1.2f);
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WaterImpactSound, GetActorLocation(), 1.f, RandomValue, 0.f, DamageAtt);
+
+		//Spiller av VFX.
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WaterHitFX, GetTransform(), true);
 	}
 
 	// Circle of thorns - NATURE
@@ -213,8 +219,7 @@ void AEnemyBaseClass::DeathCheck()
 	// DIE
 	if (HealthPoints <= 0.f)
 	{	
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Sett inn alternativ for dødslyder.
+		// Lyd når de dør.
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyDeathSound, GetActorLocation());
 
 		Destroy();

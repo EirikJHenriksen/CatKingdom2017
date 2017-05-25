@@ -59,6 +59,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem *HitFX;
 
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem *WaterHitFX;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
