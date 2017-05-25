@@ -105,6 +105,9 @@ public:
 		void DeathCheck();
 
 	// SFX.
+		UPROPERTY(EditAnywhere, Category = "SFX")
+			USoundBase* HealingSound;
+
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* PickUpSound;
 

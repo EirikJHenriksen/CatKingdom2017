@@ -27,6 +27,9 @@ void ACircleOfThorns::BeginPlay()
 	Super::BeginPlay();
 
 	SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, -50.f));
+
+	//Spiller av VFX.
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EarthEffect, GetTransform(), true);
 }
 
 // Called every frame

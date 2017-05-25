@@ -22,6 +22,10 @@ public:
 
 	bool Stopped = false;
 
+	// VFX.
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem* EarthEffect;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

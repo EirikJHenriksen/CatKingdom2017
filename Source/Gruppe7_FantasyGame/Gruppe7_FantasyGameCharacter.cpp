@@ -400,7 +400,7 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 	SpellDelay = 15.f;
 
 	// DEBUG.
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("ATTEMPT AT HEALING!!!"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("ATTEMPT AT HEALING!!!"));
 
 	//Spiller av SFX.  - LEGG TIL EN FORM FOR DELAY SÅ SFX FUNGERER!!!
 	//MagiSound();
@@ -413,9 +413,11 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 
 		//Spiller av VFX.
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HealFX, GetTransform(), true);
+		//Spiller av SFX.
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HealingSound, GetActorLocation(), 1.f, 1.f);
 
 		// DEBUG.
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("HEALING!!!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("HEALING!!!"));
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->RestoreHealth(HealthRestoration);
 
@@ -472,7 +474,7 @@ void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
 	GetWorldTimerManager().SetTimer(SpeedPowerUpTimerHandle, this, &AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver, SpeedPowerUpDuration, false);
 
 	// DEBUG.
-	GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("Power-up activated!"));
+	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("Power-up activated!"));
 
 	// Prevents multiple power-ups at once.
 	PlayerHasPowerup = true;
@@ -486,7 +488,7 @@ void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
 void AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver()
 {
 	// DEBUG.
-	GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("Power-up is over!"));
+	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("Power-up is over!"));
 
 	PlayerHasPowerup = false;
 
@@ -561,11 +563,11 @@ void AGruppe7_FantasyGameCharacter::PlayerDamageSound(int type)
 		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SOUND! FUNCTION: PlayerDamageSound()"));
 		break;
 	case 0:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Au!"));
+		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Au!"));
 		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), PainSound01, GetActorLocation());
 		break;
 	case 1:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Ouch!"));
+		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Ouch!"));
 		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), PainSound02, GetActorLocation());
 		break;
 	}
@@ -585,11 +587,11 @@ void AGruppe7_FantasyGameCharacter::PlayerAttackSound()
 		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SOUND! FUNCTION: PlayerAttackSound()"));
 		break;
 	case 0:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Huya!"));
+		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Huya!"));
 		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), YellSound01, GetActorLocation());
 		break;
 	case 1:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Ha!"));
+		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Ha!"));
 		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), YellSound02, GetActorLocation());
 		break;
 	}
@@ -685,7 +687,7 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 		else
 		{	
 			// DEBUG - Erstatt med en effekt?
-			GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("A Power-up is already active!"));
+			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("A Power-up is already active!"));
 		}
 	}
 
