@@ -113,6 +113,13 @@ void AFinalBoss::DoSomething()
 
 		GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::AttackFirstStage, RandomAttackTime, false);
 		break;
+	//case 2:
+		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SUMMON - ACTIVE"));
+
+		//RandomAttackTime = FMath::RandRange(AttackRandomMin, AttackRandomMax);
+
+		//GetWorldTimerManager().SetTimer(SummonTimerHandle, this, &AFinalBoss::SummonFirstStage, RandomAttackTime, false);
+		//break;
 	}
 
 	TheActionInt = FMath::RandRange(0, 1);
@@ -139,8 +146,6 @@ void AFinalBoss::Teleport()
 		canBeHurt = true;
 
 		GetWorld()->GetTimerManager().ClearTimer(FirstTeleportTimerHandle);
-
-		RandomMin = 5.f;
 	}
 
 	// Teleports the boss to one of three random spots.
@@ -172,8 +177,6 @@ void AFinalBoss::Teleport()
 			Element = 2;
 			SetActorLocation(FVector(NatureX, NatureY, NatureZ), false);
 		}
-
-		SummonEnemy();
 		break;
 	case 1:
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORT - WATER"));
@@ -194,8 +197,6 @@ void AFinalBoss::Teleport()
 			Element = 0;
 			SetActorLocation(FVector(FireX, FireY, FireZ), false);
 		}
-
-		SummonEnemy();
 		break;
 	case 2:
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORT - NATURE"));
@@ -216,8 +217,6 @@ void AFinalBoss::Teleport()
 			Element = 1;
 			SetActorLocation(FVector(WaterX, WaterY, WaterZ), false);
 		}
-
-		SummonEnemy();
 		break;
 	}
 
@@ -257,7 +256,19 @@ void AFinalBoss::AttackSecondStage()
 	isDoingSomething = false;
 }
 
-void AFinalBoss::SummonEnemy()
+void AFinalBoss::SummonFirstStage()
+{
+	animIsSummoning = true;
+	animStoppedSummoning = false;
+
+	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SUMMON - FIRST STAGE!!"));
+
+	GetWorld()->GetTimerManager().ClearTimer(SummonTimerHandle);
+
+	GetWorldTimerManager().SetTimer(AnimSummonTimerHandle, this, &AFinalBoss::SummonSecondStage, 2.4f, false);
+}
+
+void AFinalBoss::SummonSecondStage()
 {
 	// Summons random enemy.
 	int random = FMath::RandRange(0, 2);
@@ -277,6 +288,10 @@ void AFinalBoss::SummonEnemy()
 		GetWorld()->SpawnActor<AEnemyBaseClass>(NatureEnemyBlueprint, FVector(SpawnX, SpawnY, SpawnZ), GetActorRotation());
 		break;
 	}
+
+	GetWorld()->GetTimerManager().ClearTimer(AnimSummonTimerHandle);
+
+	isDoingSomething = false;
 }
 
 void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)

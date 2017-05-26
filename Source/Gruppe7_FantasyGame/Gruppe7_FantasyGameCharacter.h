@@ -33,6 +33,11 @@ public:
 		class UDecalComponent* CursorToWorld;
 
 	///////////////////////////////////////////////////////////////////////////
+	// Animations.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD Variables") //Fjern hvis den ikke kan brukes.
+		bool IsMoving;
+
+	///////////////////////////////////////////////////////////////////////////
 	// Materials for cursor.
 
 	UPROPERTY(EditAnywhere, Category = "Cursor Materials")
