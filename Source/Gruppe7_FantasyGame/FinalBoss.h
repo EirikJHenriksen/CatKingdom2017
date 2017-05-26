@@ -105,12 +105,20 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
 		bool animStoppedAttacking;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
+		bool animIsSummoning;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
+		bool animStoppedSummoning;
 		
 	FTimerHandle AnimDyingTimerHandle;
 
 	FTimerHandle AnimAttackTimerHandle;
 
 	FTimerHandle AnimTeleportTimerHandle;
+
+	FTimerHandle AnimSummonTimerHandle;
 
 	/////////////////////////////////////////
 	// TELEPORTATION VARIABLES.
@@ -130,10 +138,10 @@ public:
 	FTimerHandle FirstTeleportTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Teleport timers")
-		float RandomMin = 10.f;
+		float RandomMin = 1.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Teleport timers")
-		float RandomMax = 15.f;
+		float RandomMax = 3.f;
 
 	float RandomTeleportTime = 0.f;
 
@@ -171,7 +179,9 @@ public:
 
 	void AttackSecondStage();
 
-	void SummonEnemy();
+	void SummonFirstStage();
+
+	void SummonSecondStage();
 
 	int TheActionInt = 0;
 
@@ -181,11 +191,13 @@ public:
 
 	FTimerHandle AttackTimerHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack timers")
-		float AttackRandomMin = 2.f;
+	FTimerHandle SummonTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack timers")
-		float AttackRandomMax = 8.f;
+		float AttackRandomMin = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack timers")
+		float AttackRandomMax = 3.f;
 
 	float RandomAttackTime = 0.f;
 

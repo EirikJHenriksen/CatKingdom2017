@@ -281,7 +281,7 @@ void AGruppe7_FantasyGameCharacter::SelectHealing()
 void AGruppe7_FantasyGameCharacter::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
-	{
+	{	
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
