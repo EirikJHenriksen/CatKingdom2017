@@ -26,9 +26,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/////////////////////////////////////////
-	// Voice.
+	// VOICE.
 	UPROPERTY(EditAnywhere)
 		USoundBase* BossIntro;
+
+	UPROPERTY(EditAnywhere)
+		USoundBase* BossHurt;
 
 	/////////////////////////////////////////
 	// SFX.
@@ -98,7 +101,10 @@ public:
 		bool IsDead;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
-		bool IsTeleporting;
+		bool animIsTeleporting;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
+		bool animStoppedTeleporting;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
 		bool animIsAttacking;
@@ -122,14 +128,16 @@ public:
 
 	/////////////////////////////////////////
 	// TELEPORTATION VARIABLES.
-	void Teleport();
+	void TeleportFirstStage();
+
+	void TeleportSecondStage();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
 		bool fightInProgress;
 	
-	bool canTeleport;
-	
 	bool firstTeleport;
+
+	bool firstTeleportOver;
 	
 	bool canBeHurt;
 
@@ -137,13 +145,13 @@ public:
 
 	FTimerHandle FirstTeleportTimerHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Teleport timers")
-		float RandomMin = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action timers")
+		float RandomMin = 0.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Teleport timers")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action timers")
 		float RandomMax = 3.f;
 
-	float RandomTeleportTime = 0.f;
+	float RandomActionTime = 0.f;
 
 	// Teleport locations.
 	
@@ -193,14 +201,7 @@ public:
 
 	FTimerHandle SummonTimerHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack timers")
-		float AttackRandomMin = 1.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack timers")
-		float AttackRandomMax = 3.f;
-
-	float RandomAttackTime = 0.f;
-
+	FTimerHandle BossDeadTimerHandle;
 
 	// Overlap function
 	UFUNCTION()
@@ -209,5 +210,7 @@ public:
 	void IsNowDead();
 	
 	void DeathCheck();
+
+	void GameWon();
 
 };

@@ -25,34 +25,37 @@ public:
 
 	//////////////////////////////////////////////////////////////////
 	// Player variables
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 		float Health;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 		float Mana;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 		int SpellSelect;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 		int CurrentLevel;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Variables")
 		bool PlayerIsDead;
 
 	////////////////////////////////////////////////////////////////////
 	// Game variables
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
 		bool BossFightActive;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
 		bool GameIsWon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
+		bool BossIsDead;
+
 	// Used to stop GameMode from creating a menu on every BeginPlay. It's only supposed to do it as a start menu
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
 		bool IsFirstTimeMenuCalled = true;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerVariables)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
 		bool MainMenuIsNotActive = false;
 
 	FVector PlayerLocation;
@@ -108,6 +111,10 @@ public:
 	void SetPlayerIsDead(bool dead);
 
 	bool GetPlayerIsDead();
+
+	void SetBossIsDead(bool status);
+
+	bool GetBossIsDead();
 
 	//void SetPlayerVelocity(FVector Velocity);
 

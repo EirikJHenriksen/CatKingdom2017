@@ -57,6 +57,13 @@ void AEnemyBaseClass::Tick(float DeltaTime)
 	{
 		PainForgetter();
 	}
+
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
+	{	
+		// Oppdater dette nå animasjoner er implementert.
+		HealthPoints = 0.f;
+		DeathCheck();
+	}
 }
 
 // getters
@@ -224,7 +231,7 @@ void AEnemyBaseClass::DeathCheck()
 
 		Destroy();
 
-		if (	Cast<UFantasyGameInstance>(GetGameInstance())->GetCurrentLevel() != 3	) // do this unless it is the boss battle
+		if (!Cast<UFantasyGameInstance>(GetGameInstance())->BossFightActive) // do this unless it is the boss battle
 		{
 			GetWorld()->SpawnActor<ACrystalPawn>(CrystalBlueprint, GetActorLocation() + FVector(0.f, -30.f, 0.f), GetActorRotation());
 		}
@@ -245,11 +252,6 @@ void AEnemyBaseClass::DeathCheck()
 				GetWorld()->SpawnActor<AManaPotion>(ManaBlueprint, GetActorLocation() + FVector(0.f, 30.f, 0.f), GetActorRotation());
 			}
 		}
-	}
-	else
-	{
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Sett inn alternativ for damage lyder.
 	}
 }
 
@@ -284,7 +286,7 @@ bool AEnemyBaseClass::CanSeePlayer()
 		// Updates DistanceToPlayer
 		UpdateDistance();
 
-		if (DistanceToPlayer < 900.f)
+		if ((DistanceToPlayer < 900.f || Cast<UFantasyGameInstance>(GetGameInstance())->BossFightActive) && !Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead())
 		{
 			FHitResult hitResult;
 			FVector MyLocation = GetActorLocation();

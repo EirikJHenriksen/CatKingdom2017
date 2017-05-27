@@ -29,22 +29,26 @@ void AFinalBoss::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = 1.f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
+	Health = 0.2f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
 
 	isDoingSomething = false;
 
 	canBeHurt = false;
 
-	canTeleport = true;
-
-	isAttacking = false;
-
 	firstTeleport = true;
+
+	firstTeleportOver = false;
 
 	//////////////////////////////
 	// Animation.
-	bool animStoppedAttacking = true;
-	bool animIsAttacking = false;
+	animStoppedAttacking = true;
+	animIsAttacking = false;
+
+	animStoppedTeleporting = true;
+	animIsTeleporting = false;
+	
+	animStoppedSummoning = true;
+	animIsSummoning = false;
 }
 
 // Called every frame
@@ -71,21 +75,20 @@ void AFinalBoss::Tick(float DeltaTime)
 	{	
 		if (firstTeleport)
 		{	
-			GetWorldTimerManager().SetTimer(FirstTeleportTimerHandle, this, &AFinalBoss::Teleport, 8.f, false);
+			GetWorldTimerManager().SetTimer(FirstTeleportTimerHandle, this, &AFinalBoss::TeleportFirstStage, 8.f, false);
 
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossIntro, GetActorLocation(), 1.f);
 
 			firstTeleport = false;
 
-			TheActionInt = FMath::RandRange(0, 1);
+			TheActionInt = FMath::RandRange(0, 3);
 		}
-		else if (!isDoingSomething)
+		else if (!isDoingSomething && firstTeleportOver)
 		{	
 			isDoingSomething = true;
 			
 			DoSomething();
 		}
-
 	}
 }
 
@@ -96,33 +99,36 @@ void AFinalBoss::DoSomething()
 	default:
 		break;
 	case 0:
-		canTeleport = false;
-
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("TELEPORT - ACTIVE"));
 
-		RandomTeleportTime = FMath::RandRange(RandomMin, RandomMax);
+		RandomActionTime = FMath::RandRange(RandomMin, RandomMax);
 
-		GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &AFinalBoss::Teleport, RandomTeleportTime, false);
+		GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &AFinalBoss::TeleportFirstStage, RandomActionTime, false);
 		break;
 	case 1:
-		isAttacking = true;
-
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("ATTACK - ACTIVE"));
-
-		RandomAttackTime = FMath::RandRange(AttackRandomMin, AttackRandomMax);
-
-		GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::AttackFirstStage, RandomAttackTime, false);
-		break;
-	//case 2:
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SUMMON - ACTIVE"));
 
-		//RandomAttackTime = FMath::RandRange(AttackRandomMin, AttackRandomMax);
+		RandomActionTime = FMath::RandRange(RandomMin, RandomMax);
 
-		//GetWorldTimerManager().SetTimer(SummonTimerHandle, this, &AFinalBoss::SummonFirstStage, RandomAttackTime, false);
-		//break;
+		GetWorldTimerManager().SetTimer(SummonTimerHandle, this, &AFinalBoss::SummonFirstStage, RandomActionTime, false);
+		break;
+	case 2:
+		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("ATTACK - ACTIVE"));
+
+		RandomActionTime = FMath::RandRange(RandomMin, RandomMax);
+
+		GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::AttackFirstStage, RandomActionTime, false);
+		break;
+	case 3:
+		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("ATTACK - ACTIVE"));
+
+		RandomActionTime = FMath::RandRange(RandomMin, RandomMax);
+
+		GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::AttackFirstStage, RandomActionTime, false);
+		break;
 	}
 
-	TheActionInt = FMath::RandRange(0, 1);
+	TheActionInt = FMath::RandRange(0, 3);
 }
 
 // gets the distance to player
@@ -137,9 +143,10 @@ void AFinalBoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void AFinalBoss::Teleport()
+void AFinalBoss::TeleportFirstStage()
 {	
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORTER - FUNCTION IN PROGRESS"));
+	animIsTeleporting = true;
+	animStoppedTeleporting = false;
 
 	if (!canBeHurt)
 	{
@@ -147,6 +154,15 @@ void AFinalBoss::Teleport()
 
 		GetWorld()->GetTimerManager().ClearTimer(FirstTeleportTimerHandle);
 	}
+
+	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("TELEPORT - FIRST STAGE!!"));
+
+	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::TeleportSecondStage, 2.7f, false);
+}
+
+void AFinalBoss::TeleportSecondStage()
+{	
+	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORTER - FUNCTION IN PROGRESS"));
 
 	// Teleports the boss to one of three random spots.
 	int random = FMath::RandRange(0, 2);
@@ -160,7 +176,7 @@ void AFinalBoss::Teleport()
 		break;
 	case 0:
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORT - FIRE"));
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, GetActorLocation());
+		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, GetActorLocation());
 		//VFX.
 		if (Element != 0)
 		{
@@ -222,7 +238,14 @@ void AFinalBoss::Teleport()
 
 	GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
 
-	canTeleport = true;
+	if (!firstTeleportOver)
+	{
+		firstTeleportOver = true;
+	}
+
+	animIsTeleporting = false;
+	animStoppedTeleporting = true;
+
 	isDoingSomething = false;
 }
 
@@ -235,7 +258,7 @@ void AFinalBoss::AttackFirstStage()
 
 	GetWorld()->GetTimerManager().ClearTimer(AttackTimerHandle);
 
-	GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &AFinalBoss::AttackSecondStage, 2.4f, false);
+	GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &AFinalBoss::AttackSecondStage, 1.f, false);
 }
 
 void AFinalBoss::AttackSecondStage()
@@ -251,7 +274,6 @@ void AFinalBoss::AttackSecondStage()
 	GetWorld()->GetTimerManager().ClearTimer(AnimAttackTimerHandle);
 	animIsAttacking = false;
 	animStoppedAttacking = true;
-	isAttacking = false;
 
 	isDoingSomething = false;
 }
@@ -265,15 +287,12 @@ void AFinalBoss::SummonFirstStage()
 
 	GetWorld()->GetTimerManager().ClearTimer(SummonTimerHandle);
 
-	GetWorldTimerManager().SetTimer(AnimSummonTimerHandle, this, &AFinalBoss::SummonSecondStage, 2.4f, false);
+	GetWorldTimerManager().SetTimer(AnimSummonTimerHandle, this, &AFinalBoss::SummonSecondStage, 1.5f, false);
 }
 
 void AFinalBoss::SummonSecondStage()
 {
-	// Summons random enemy.
-	int random = FMath::RandRange(0, 2);
-
-	switch (random)
+	switch (Element)
 	{
 	default:
 		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SUMMONS! FUNCTION: SummonEnemy()"));
@@ -290,6 +309,8 @@ void AFinalBoss::SummonSecondStage()
 	}
 
 	GetWorld()->GetTimerManager().ClearTimer(AnimSummonTimerHandle);
+	animIsSummoning = false;
+	animStoppedSummoning = true;
 
 	isDoingSomething = false;
 }
@@ -315,6 +336,8 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 		{	
 			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
 			Health -= 0.05f;
+
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
 		}
 		else
 		{
@@ -330,6 +353,8 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 		{
 			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
 			Health -= 0.05f;
+
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
 		}
 		else
 		{
@@ -345,6 +370,8 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 		{
 			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
 			Health -= 0.05f;
+
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
 		}
 		else
 		{
@@ -360,17 +387,28 @@ void AFinalBoss::IsNowDead()
 {	
 	IsDead = true;
 	GetWorld()->GetTimerManager().ClearTimer(AnimDyingTimerHandle);
+
+	GetWorldTimerManager().SetTimer(BossDeadTimerHandle, this, &AFinalBoss::GameWon, 5.f, false);
 }
 
 void AFinalBoss::DeathCheck()
 {
-	if (Health <= 0.f)
+	if (Health <= 0.f && !IsDying)
 	{	
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Night-Night døde!"));
 
+		animStoppedAttacking = true;
+		animIsAttacking = false;
+
+		animStoppedTeleporting = true;
+		animIsTeleporting = false;
+
+		animStoppedSummoning = true;
+		animIsSummoning = false;
+
 		GetWorld()->GetTimerManager().ClearTimer(TeleportTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(AttackTimerHandle);
-		//GetWorld()->GetTimerManager().ClearTimer(FirstTeleportTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(SummonTimerHandle);
 
 		FRotator DeathRotate = LookVector.Rotation();
 
@@ -379,11 +417,18 @@ void AFinalBoss::DeathCheck()
 		IsDying = true;
 
 		if (!IsDead)
-		{
-			GetWorldTimerManager().SetTimer(AnimDyingTimerHandle, this, &AFinalBoss::IsNowDead, 4.5f, false);
-		}
+		{	
+			Cast<UFantasyGameInstance>(GetGameInstance())->SetBossIsDead(true);
 
-		// Lets the game know that the game is won. 
-		//Cast<UFantasyGameInstance>(GetGameInstance())->SetGameIsWon(true);
+			GetWorldTimerManager().SetTimer(AnimDyingTimerHandle, this, &AFinalBoss::IsNowDead, 5.2f, false);
+		}
 	}
+}
+
+void AFinalBoss::GameWon()
+{
+	// Lets the game know that the game is won. 
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetGameIsWon(true);
+	
+	GetWorld()->GetTimerManager().ClearTimer(BossDeadTimerHandle);
 }

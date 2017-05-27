@@ -76,6 +76,11 @@ AGruppe7_FantasyGameCharacter::AGruppe7_FantasyGameCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	///////////////////////////////////////
+	// ANIMATIONS
+
+	AnimPlayerIsIdle = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -180,7 +185,7 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 
 	HitResult = GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), true, Hit);
 
-	if (HitResult)
+	if (HitResult && !AnimPlayerIsDying)
 	{
 		FVector CursorFV = Hit.ImpactNormal;
 		FRotator CursorR = CursorFV.Rotation();
@@ -201,7 +206,6 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 	if (PlayerRespawn)
 	{	
 		PlayerRespawn = false;
-		//PlayerIsDead = false;
 		Respawner();
 	}
 }
@@ -280,7 +284,7 @@ void AGruppe7_FantasyGameCharacter::SelectHealing()
 
 void AGruppe7_FantasyGameCharacter::MoveForward(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	if ((Controller != NULL) && (Value != 0.0f) && !AnimPlayerIsDying)
 	{	
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -294,7 +298,7 @@ void AGruppe7_FantasyGameCharacter::MoveForward(float Value)
 
 void AGruppe7_FantasyGameCharacter::MoveRight(float Value)
 {
-	if ( (Controller != NULL) && (Value != 0.0f) )
+	if ((Controller != NULL) && (Value != 0.0f) && !AnimPlayerIsDying)
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -310,20 +314,38 @@ void AGruppe7_FantasyGameCharacter::MoveRight(float Value)
 void AGruppe7_FantasyGameCharacter::PhysAttack()
 {	
 	// Legg til delay mellom angrep så de ikke kan spammes.
-	if (!AttackDelay)
+	if (!AttackDelay && !AnimPlayerIsDying)
 	{
 		UWorld* World = GetWorld();
 		if (World)
 		{
 			AttackDelay = true;
+			AnimIsAttacking = true;
+			AnimStopAttacking = false;
 
-			GetWorld()->SpawnActor<APhysAttackBox>(PhysAttackBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
+			GetWorldTimerManager().SetTimer(AttackEffectTimerHandle, this, &AGruppe7_FantasyGameCharacter::PhysAttackEffect, 0.2f, false);
 
-			GetWorld()->SpawnActor<AKnockbackSphere>(KnockbackBlueprint, GetActorLocation(), GetActorRotation());
+			GetWorldTimerManager().SetTimer(AnimPlayerAttackTimerHandle, this, &AGruppe7_FantasyGameCharacter::PhysAttackOver, 0.55f, false);
 
 			PlayerAttackSound();
 		}
 	}
+}
+
+void AGruppe7_FantasyGameCharacter::PhysAttackEffect()
+{
+	GetWorld()->SpawnActor<APhysAttackBox>(PhysAttackBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
+	GetWorld()->SpawnActor<AKnockbackSphere>(KnockbackBlueprint, GetActorLocation(), GetActorRotation());
+
+	GetWorld()->GetTimerManager().ClearTimer(AttackEffectTimerHandle);
+}
+
+void AGruppe7_FantasyGameCharacter::PhysAttackOver()
+{
+	AnimIsAttacking = false;
+	AnimStopAttacking = true;
+
+	GetWorld()->GetTimerManager().ClearTimer(AnimPlayerAttackTimerHandle);
 }
 
 void AGruppe7_FantasyGameCharacter::MagiProjectile()
@@ -427,22 +449,37 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 
 void AGruppe7_FantasyGameCharacter::MagiAttack()
 {	
-
-	switch (SpellSelect)
+	if (!AnimPlayerIsDying)
 	{
-	case 0:
-		AGruppe7_FantasyGameCharacter::MagiProjectile();
-		break;
-	case 1:
-		AGruppe7_FantasyGameCharacter::MagiFireCone();
-		break;
-	case 2:
-		AGruppe7_FantasyGameCharacter::MagiThornCircle();
-		break;
-	case 3:
-		AGruppe7_FantasyGameCharacter::MagiHealing();
-		break;
+		switch (SpellSelect)
+		{
+		case 0:
+			AGruppe7_FantasyGameCharacter::MagiProjectile();
+			break;
+		case 1:
+			AGruppe7_FantasyGameCharacter::MagiFireCone();
+			break;
+		case 2:
+			AGruppe7_FantasyGameCharacter::MagiThornCircle();
+			break;
+		case 3:
+			AGruppe7_FantasyGameCharacter::MagiHealing();
+			break;
+		}
 	}
+
+	AnimUseMagic = true;
+	AnimStopMagic = false;
+
+	GetWorldTimerManager().SetTimer(AnimPlayerMagicTimerHandle, this, &AGruppe7_FantasyGameCharacter::MagiAttackAnimOver, 0.7f, false);
+}
+
+void AGruppe7_FantasyGameCharacter::MagiAttackAnimOver()
+{
+	AnimUseMagic = false;
+	AnimStopMagic = true;
+
+	GetWorld()->GetTimerManager().ClearTimer(AnimPlayerMagicTimerHandle);
 }
 
 void AGruppe7_FantasyGameCharacter::MagiAttackStop()
@@ -527,8 +564,14 @@ void AGruppe7_FantasyGameCharacter::Respawner()
 	Health = 1.f;
 	Cast<UFantasyGameInstance>(GetGameInstance())->RestoreMana(1.f);
 	Mana = 1.f;
-	Cast<UFantasyGameInstance>(GetGameInstance())->SetBossFightActive(false);
 
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetBossFightActive(false);
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetPlayerIsDead(false);
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetBossIsDead(false);
+
+	GetWorld()->GetTimerManager().ClearTimer(PlayerDeadTimerHandle);
+
+	AnimPlayerIsDying = false;
 	PlayerIsDead = false;
 	CollectionPickup = 0;
 }
@@ -554,23 +597,7 @@ void AGruppe7_FantasyGameCharacter::PlayerDamageSound(int type)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShockSound01, GetActorLocation(), 1.f, randomPitch);
 	}
 
-	//Random scream sound.
-	RandomInt = FMath::RandRange(0, 1);
-
-	switch (RandomInt)
-	{
-	default:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SOUND! FUNCTION: PlayerDamageSound()"));
-		break;
-	case 0:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Au!"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), PainSound01, GetActorLocation());
-		break;
-	case 1:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Ouch!"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), PainSound02, GetActorLocation());
-		break;
-	}
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HurtVoice, GetActorLocation(), 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::PlayerAttackSound()
@@ -578,118 +605,113 @@ void AGruppe7_FantasyGameCharacter::PlayerAttackSound()
 	float randomPitch = FMath::RandRange(0.8f, 1.2f);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound01, GetActorLocation(), 1.f, randomPitch);
 
-	//Random yell sound.
-	RandomInt = FMath::RandRange(0, 1);
-
-	switch (RandomInt)
-	{
-	default:
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SOUND! FUNCTION: PlayerAttackSound()"));
-		break;
-	case 0:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Huya!"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), YellSound01, GetActorLocation());
-		break;
-	case 1:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Orange, TEXT("Ha!"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), YellSound02, GetActorLocation());
-		break;
-	}
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackVoice, GetActorLocation(), 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::DeathCheck()
 {
 	if (Health <= 0.f)
 	{	
-		PlayerIsDead = true;
+		AnimPlayerIsDying = true;
+
+		Cast<UFantasyGameInstance>(GetGameInstance())->SetPlayerIsDead(true);
 
 		// DEBUG - Erstatt med en effekt?
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Purple, TEXT("YOU DIED! LOL n00b!"));
+
+		GetWorldTimerManager().SetTimer(PlayerDeadTimerHandle, this, &AGruppe7_FantasyGameCharacter::PlayerDead, 2.5f, false);
 	}
+}
+
+void AGruppe7_FantasyGameCharacter::PlayerDead()
+{
+	PlayerIsDead = true;
 }
 
 void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {	
-	////////////////////////////////////////////////////////////////////////////////
-	// ENEMY ATTACKS.
-
-	if (OtherActor->IsA(AEnemyAttackBox::StaticClass()))
+	if (!AnimPlayerIsDying)
 	{
-		OtherActor->Destroy();
+		////////////////////////////////////////////////////////////////////////////////
+		// ENEMY ATTACKS.
 
-		Cast<UFantasyGameInstance>(GetGameInstance())->DrainHealth(DamageFromEnemy);
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
-
-		PlayerDamageSound(1);
-	}
-
-	if (OtherActor->IsA(ABossSpellFire::StaticClass()))
-	{
-		OtherActor->Destroy();
-
-		Cast<UFantasyGameInstance>(GetGameInstance())->DrainHealth(DamageFromBoss);
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
-
-		PlayerDamageSound(2);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////
-	// POTIONS AND RESTORATIVE ITEMS.
-
-	if (OtherActor->IsA(AWizardCloud::StaticClass()) && Mana < 1.f)
-	{
-		OtherActor->SetActorLocation(FVector(0.f, 0.f, -200.f));
-
-		AGruppe7_FantasyGameCharacter::ManaPotion(1.f);
-	}
-
-	if (OtherActor->IsA(AManaPotion::StaticClass()) && Mana < 1.f)
-	{
-		OtherActor->Destroy();
-
-		AGruppe7_FantasyGameCharacter::ManaPotion(0.25f);
-
-		//Spiller av SFX.
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
-	}
-
-	if (OtherActor->IsA(AHealthPotion::StaticClass()) && Health < 1.f)
-	{
-		OtherActor->Destroy();
-
-		AGruppe7_FantasyGameCharacter::HealthPotion(0.25f);
-
-		//Spiller av SFX.
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
-	}
-
-	// pickup should depend on current level?
-	if (OtherActor->IsA(ACrystalPawn::StaticClass()))
-	{
-		OtherActor->Destroy();
-		UGameplayStatics::PlaySound2D(GetWorld(), CollectionPickupSound, 1.f, 1.f, 0.f);
-		CollectionPickup++;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////
-	// POWER-UPS.
-
-	if (OtherActor->IsA(APowerUp_Speed::StaticClass()) && (PlayerMovementSpeed == 600.f) && (PlayerHasPowerup == false))
-	{	
-		if (!PlayerHasPowerup)
+		if (OtherActor->IsA(AEnemyAttackBox::StaticClass()))
 		{
 			OtherActor->Destroy();
 
-			AGruppe7_FantasyGameCharacter::PowerUp_Speed();
-		}
-		else
-		{	
-			// DEBUG - Erstatt med en effekt?
-			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("A Power-up is already active!"));
-		}
-	}
+			Cast<UFantasyGameInstance>(GetGameInstance())->DrainHealth(DamageFromEnemy);
 
-	DeathCheck();
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
+
+			PlayerDamageSound(1);
+		}
+
+		if (OtherActor->IsA(ABossSpellFire::StaticClass()))
+		{
+			OtherActor->Destroy();
+
+			Cast<UFantasyGameInstance>(GetGameInstance())->DrainHealth(DamageFromBoss);
+
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
+
+			PlayerDamageSound(2);
+		}
+
+		////////////////////////////////////////////////////////////////////////////////
+		// POTIONS AND RESTORATIVE ITEMS.
+
+		if (OtherActor->IsA(AWizardCloud::StaticClass()) && Mana < 1.f)
+		{
+			OtherActor->SetActorLocation(FVector(0.f, 0.f, -200.f));
+
+			AGruppe7_FantasyGameCharacter::ManaPotion(1.f);
+		}
+
+		if (OtherActor->IsA(AManaPotion::StaticClass()) && Mana < 1.f)
+		{
+			OtherActor->Destroy();
+
+			AGruppe7_FantasyGameCharacter::ManaPotion(0.25f);
+
+			//Spiller av SFX.
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
+		}
+
+		if (OtherActor->IsA(AHealthPotion::StaticClass()) && Health < 1.f)
+		{
+			OtherActor->Destroy();
+
+			AGruppe7_FantasyGameCharacter::HealthPotion(0.25f);
+
+			//Spiller av SFX.
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PotionSound, GetActorLocation(), 1.f, 1.f);
+		}
+
+		// pickup should depend on current level?
+		if (OtherActor->IsA(ACrystalPawn::StaticClass()))
+		{
+			OtherActor->Destroy();
+			UGameplayStatics::PlaySound2D(GetWorld(), CollectionPickupSound, 1.f, 1.f, 0.f);
+			CollectionPickup++;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////
+		// POWER-UPS.
+
+		if (OtherActor->IsA(APowerUp_Speed::StaticClass()) && (PlayerMovementSpeed == 600.f) && (PlayerHasPowerup == false))
+		{
+			if (!PlayerHasPowerup)
+			{
+				OtherActor->Destroy();
+
+				AGruppe7_FantasyGameCharacter::PowerUp_Speed();
+			}
+			else
+			{
+				// DEBUG - Erstatt med en effekt?
+				//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("A Power-up is already active!"));
+			}
+		}
+		DeathCheck();
+	}
 }

@@ -34,8 +34,34 @@ public:
 
 	///////////////////////////////////////////////////////////////////////////
 	// Animations.
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD Variables") //Fjern hvis den ikke kan brukes.
-		bool IsMoving;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+		bool AnimPlayerIsIdle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations") //Fjern hvis den ikke kan brukes.
+		bool AnimIsMoving;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+		bool AnimPlayerIsDying;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+		bool AnimIsAttacking;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+		bool AnimStopAttacking;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+		bool AnimUseMagic;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
+		bool AnimStopMagic;
+
+	FTimerHandle PlayerDeadTimerHandle;
+
+	FTimerHandle AnimPlayerAttackTimerHandle;
+
+	FTimerHandle AnimPlayerMagicTimerHandle;
+
+	FTimerHandle AttackEffectTimerHandle;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Materials for cursor.
@@ -109,9 +135,22 @@ public:
 
 		void DeathCheck();
 
+		void PlayerDead();
+	///////////////////////////////////////////////////
+	// VOICE.
+	UPROPERTY(EditAnywhere, Category = "Voice")
+		USoundBase* AttackVoice;
+	
+	UPROPERTY(EditAnywhere, Category = "Voice")
+		USoundBase* HurtVoice;
+
+	UPROPERTY(EditAnywhere, Category = "Voice")
+		USoundBase* BossEncounterVoice;
+
+	///////////////////////////////////////////////////
 	// SFX.
-		UPROPERTY(EditAnywhere, Category = "SFX")
-			USoundBase* HealingSound;
+	UPROPERTY(EditAnywhere, Category = "SFX")
+		USoundBase* HealingSound;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* PickUpSound;
@@ -123,9 +162,6 @@ public:
 		USoundBase* YellSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
-		USoundBase* YellSound02;
-
-	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* DamageSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
@@ -133,9 +169,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* PainSound01;
-
-	UPROPERTY(EditAnywhere, Category = "SFX")
-		USoundBase* PainSound02;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* CollectionPickupSound;
@@ -210,6 +243,10 @@ protected:
 	/** Called for attacks */
 	void PhysAttack();
 
+	void PhysAttackEffect();
+
+	void PhysAttackOver();
+
 	void MagiProjectile();
 
 	void MagiFireCone();
@@ -219,6 +256,8 @@ protected:
 	void MagiHealing();
 
 	void MagiAttack();
+
+	void MagiAttackAnimOver();
 
 	void MagiAttackStop();
 
