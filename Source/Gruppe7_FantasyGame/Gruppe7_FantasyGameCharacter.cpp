@@ -158,27 +158,7 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 		}
 	}
 
-	// Angreps delay.
-	if (AttackDelay)
-	{
-		AttackTimer += 1.f;
-		if (AttackTimer > 30.f)
-		{
-			AttackDelay = false;
-			AttackTimer = 0.f;
-		}
-	}
-
-	// Magi delay.
-	if (MagicDelay)
-	{
-		MagicTimer += 1.f;
-		if (MagicTimer > 60.f)
-		{
-			MagicDelay = false;
-			MagicTimer = 0.f;
-		}
-	}
+	DelayUpdater();
 
 	FHitResult Hit;
 	bool HitResult = false;
@@ -421,29 +401,33 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 	SpellIsContinuous = true;
 	SpellDelay = 15.f;
 
-	// DEBUG.
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("ATTEMPT AT HEALING!!!"));
-
 	//Spiller av SFX.  - LEGG TIL EN FORM FOR DELAY SÅ SFX FUNGERER!!!
 	//MagiSound();
 
+	//Set the required mana for casting this spell.
+	float ManaRequirement{ 0.15f };
+	float HealthRestoration{ 0.05f };
+
 	if (Health != 1.f && Mana >= 0.f)
 	{
-		//Set the required mana for casting this spell.
-		float ManaRequirement{ 0.15f };
-		float HealthRestoration{ 0.05f };
-
 		//Spiller av VFX.
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HealFX, GetTransform(), true);
 		//Spiller av SFX.
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HealingSound, GetActorLocation(), 1.f, 1.f);
 
-		// DEBUG.
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("HEALING!!!"));
-
 		Cast<UFantasyGameInstance>(GetGameInstance())->RestoreHealth(HealthRestoration);
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
+	}
+	else if (Health == 1.f && FineDelay <= 0)
+	{
+		FineDelay = VoiceTimer;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FeelFine, GetActorLocation(), 1.f, 1.f);
+	}
+	else if (Mana < ManaRequirement && NeedManaDelay <= 0)
+	{
+		NeedManaDelay = VoiceTimer;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
 	}
 }
 
@@ -713,5 +697,40 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 			}
 		}
 		DeathCheck();
+	}
+}
+
+void AGruppe7_FantasyGameCharacter::DelayUpdater()
+{
+	// Angreps delay.
+	if (AttackDelay)
+	{
+		AttackTimer += 1.f;
+		if (AttackTimer > 30.f)
+		{
+			AttackDelay = false;
+			AttackTimer = 0.f;
+		}
+	}
+
+	// Magi delay.
+	if (MagicDelay)
+	{
+		MagicTimer += 1.f;
+		if (MagicTimer > 60.f)
+		{
+			MagicDelay = false;
+			MagicTimer = 0.f;
+		}
+	}
+
+	if (FineDelay > 0)
+	{
+		FineDelay -= 1;
+	}
+
+	if (NeedManaDelay > 0)
+	{
+		NeedManaDelay -= 1;
 	}
 }

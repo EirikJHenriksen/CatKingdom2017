@@ -147,6 +147,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Voice")
 		USoundBase* BossEncounterVoice;
 
+	UPROPERTY(EditAnywhere, Category = "Voice")
+		USoundBase* FeelFine;
+
+	UPROPERTY(EditAnywhere, Category = "Voice")
+		USoundBase* NeedMana;
+
 	///////////////////////////////////////////////////
 	// SFX.
 	UPROPERTY(EditAnywhere, Category = "SFX")
@@ -277,6 +283,13 @@ protected:
 
 	float MagicTimer = 0.f;
 
+	// Voice timers
+	int FineDelay = 0;
+
+	int NeedManaDelay = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
+		int VoiceTimer = 240;
 
 	/** Item functions */
 	void ManaPotion(float ManaRestore);
@@ -324,4 +337,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 		float DamageFromBoss = 0.1f;
+
+	// called every tick
+	void DelayUpdater();
 };
