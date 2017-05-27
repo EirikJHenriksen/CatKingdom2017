@@ -350,6 +350,11 @@ void AGruppe7_FantasyGameCharacter::MagiProjectile()
 
 			Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 		}
+		else if (Mana < ManaRequirement && AllVoiceDelay <= 0)
+		{
+			AllVoiceDelay = VoiceTimer;
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
+		}
 	}
 }
 
@@ -374,6 +379,11 @@ void AGruppe7_FantasyGameCharacter::MagiFireCone()
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
+	else if (Mana < ManaRequirement && AllVoiceDelay <= 0)
+	{
+		AllVoiceDelay = VoiceTimer;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
+	}
 }
 
 void AGruppe7_FantasyGameCharacter::MagiThornCircle()
@@ -394,6 +404,11 @@ void AGruppe7_FantasyGameCharacter::MagiThornCircle()
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
+	else if (Mana < ManaRequirement && AllVoiceDelay <= 0)
+	{
+		AllVoiceDelay = VoiceTimer;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
+	}
 }
 
 void AGruppe7_FantasyGameCharacter::MagiHealing()
@@ -412,21 +427,26 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 	{
 		//Spiller av VFX.
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HealFX, GetTransform(), true);
-		//Spiller av SFX.
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HealingSound, GetActorLocation(), 1.f, 1.f);
 
+		//Spiller av SFX. (Purring)
+		if (PurrDelay <= 0)
+		{
+			PurrDelay = 30;
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), HealingSound, GetActorLocation(), 1.f, 1.f);
+		}
+		
 		Cast<UFantasyGameInstance>(GetGameInstance())->RestoreHealth(HealthRestoration);
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
-	else if (Health == 1.f && FineDelay <= 0)
+	else if (Health == 1.f && AllVoiceDelay <= 0)
 	{
-		FineDelay = VoiceTimer;
+		AllVoiceDelay = VoiceTimer;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FeelFine, GetActorLocation(), 1.f, 1.f);
 	}
-	else if (Mana < ManaRequirement && NeedManaDelay <= 0)
+	else if (Mana < ManaRequirement && AllVoiceDelay <= 0)
 	{
-		NeedManaDelay = VoiceTimer;
+		AllVoiceDelay = VoiceTimer;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
 	}
 }
@@ -581,7 +601,7 @@ void AGruppe7_FantasyGameCharacter::PlayerDamageSound(int type)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShockSound01, GetActorLocation(), 1.f, randomPitch);
 	}
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HurtVoice, GetActorLocation(), 1.f);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HurtVoice, GetActorLocation(), 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::PlayerAttackSound()
@@ -589,7 +609,7 @@ void AGruppe7_FantasyGameCharacter::PlayerAttackSound()
 	float randomPitch = FMath::RandRange(0.8f, 1.2f);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound01, GetActorLocation(), 1.f, randomPitch);
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackVoice, GetActorLocation(), 1.f);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackVoice, GetActorLocation(), 1.f);
 }
 
 void AGruppe7_FantasyGameCharacter::DeathCheck()
@@ -724,13 +744,13 @@ void AGruppe7_FantasyGameCharacter::DelayUpdater()
 		}
 	}
 
-	if (FineDelay > 0)
+	if (AllVoiceDelay > 0)
 	{
-		FineDelay -= 1;
+		AllVoiceDelay -= 1;
 	}
 
-	if (NeedManaDelay > 0)
+	if (PurrDelay > 0)
 	{
-		NeedManaDelay -= 1;
+		PurrDelay -= 1;
 	}
 }

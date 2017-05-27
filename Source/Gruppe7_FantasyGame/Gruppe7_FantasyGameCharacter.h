@@ -284,9 +284,8 @@ protected:
 	float MagicTimer = 0.f;
 
 	// Voice timers
-	int FineDelay = 0;
-
-	int NeedManaDelay = 0;
+	int AllVoiceDelay = 0;
+	int PurrDelay = 0; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
 		int VoiceTimer = 240;
