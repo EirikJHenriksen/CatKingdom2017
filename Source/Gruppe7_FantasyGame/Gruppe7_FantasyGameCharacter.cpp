@@ -78,6 +78,11 @@ AGruppe7_FantasyGameCharacter::AGruppe7_FantasyGameCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	///////////////////////////////////////
+	// VOICE
+
+	VoiceIsActive = false;
+
+	///////////////////////////////////////
 	// ANIMATIONS
 
 	AnimPlayerIsIdle = true;
@@ -158,6 +163,7 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 		}
 	}
 
+	// Keeps track of delays.
 	DelayUpdater();
 
 	FHitResult Hit;
@@ -294,7 +300,7 @@ void AGruppe7_FantasyGameCharacter::MoveRight(float Value)
 void AGruppe7_FantasyGameCharacter::PhysAttack()
 {	
 	// Legg til delay mellom angrep så de ikke kan spammes.
-	if (!AttackDelay && !AnimPlayerIsDying)
+	if (!AttackDelay && !AnimPlayerIsDying && !MagicDelay)
 	{
 		UWorld* World = GetWorld();
 		if (World)
@@ -305,7 +311,7 @@ void AGruppe7_FantasyGameCharacter::PhysAttack()
 
 			GetWorldTimerManager().SetTimer(AttackEffectTimerHandle, this, &AGruppe7_FantasyGameCharacter::PhysAttackEffect, 0.2f, false);
 
-			GetWorldTimerManager().SetTimer(AnimPlayerAttackTimerHandle, this, &AGruppe7_FantasyGameCharacter::PhysAttackOver, 0.55f, false);
+			GetWorldTimerManager().SetTimer(AnimPlayerAttackTimerHandle, this, &AGruppe7_FantasyGameCharacter::PhysAttackOver, 0.3f, false);
 
 			PlayerAttackSound();
 		}
@@ -350,10 +356,11 @@ void AGruppe7_FantasyGameCharacter::MagiProjectile()
 
 			Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 		}
-		else if (Mana < ManaRequirement && AllVoiceDelay <= 0)
+		else if (Mana < ManaRequirement && !VoiceIsActive)
 		{
-			AllVoiceDelay = VoiceTimer;
+			VoiceIsActive = true;
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
+			GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 2.f, false);
 		}
 	}
 }
@@ -379,10 +386,11 @@ void AGruppe7_FantasyGameCharacter::MagiFireCone()
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
-	else if (Mana < ManaRequirement && AllVoiceDelay <= 0)
+	else if (Mana < ManaRequirement && !VoiceIsActive)
 	{
-		AllVoiceDelay = VoiceTimer;
+		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 2.f, false);
 	}
 }
 
@@ -404,10 +412,11 @@ void AGruppe7_FantasyGameCharacter::MagiThornCircle()
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
-	else if (Mana < ManaRequirement && AllVoiceDelay <= 0)
+	else if (Mana < ManaRequirement && !VoiceIsActive)
 	{
-		AllVoiceDelay = VoiceTimer;
+		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 2.f, false);
 	}
 }
 
@@ -439,21 +448,23 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
-	else if (Health == 1.f && AllVoiceDelay <= 0)
+	else if (Health == 1.f && !VoiceIsActive)
 	{
-		AllVoiceDelay = VoiceTimer;
+		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FeelFine, GetActorLocation(), 1.f, 1.f);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 2.f, false);
 	}
-	else if (Mana < ManaRequirement && AllVoiceDelay <= 0)
-	{
-		AllVoiceDelay = VoiceTimer;
+	else if (Mana < ManaRequirement && !VoiceIsActive)
+	{	
+		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), NeedMana, GetActorLocation(), 1.f, 1.f);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 2.f, false);
 	}
 }
 
 void AGruppe7_FantasyGameCharacter::MagiAttack()
 {	
-	if (!AnimPlayerIsDying)
+	if (!AnimPlayerIsDying && !AttackDelay)
 	{
 		switch (SpellSelect)
 		{
@@ -601,7 +612,13 @@ void AGruppe7_FantasyGameCharacter::PlayerDamageSound(int type)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShockSound01, GetActorLocation(), 1.f, randomPitch);
 	}
 
+	// Makes sure two voice sounds aren't played at once.
+	if (!VoiceIsActive)
+	{	
+		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HurtVoice, GetActorLocation(), 1.f);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 0.5f, false);
+	}
 }
 
 void AGruppe7_FantasyGameCharacter::PlayerAttackSound()
@@ -609,7 +626,19 @@ void AGruppe7_FantasyGameCharacter::PlayerAttackSound()
 	float randomPitch = FMath::RandRange(0.8f, 1.2f);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound01, GetActorLocation(), 1.f, randomPitch);
 
+	// Makes sure two voice sounds aren't played at once.
+	if (!VoiceIsActive)
+	{
+		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackVoice, GetActorLocation(), 1.f);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 0.5f, false);
+	}
+}
+
+void AGruppe7_FantasyGameCharacter::VoiceIsFinished()
+{
+	VoiceIsActive = false;
+	GetWorld()->GetTimerManager().ClearTimer(VoiceIsActiveTimerHandle);
 }
 
 void AGruppe7_FantasyGameCharacter::DeathCheck()
@@ -742,11 +771,6 @@ void AGruppe7_FantasyGameCharacter::DelayUpdater()
 			MagicDelay = false;
 			MagicTimer = 0.f;
 		}
-	}
-
-	if (AllVoiceDelay > 0)
-	{
-		AllVoiceDelay -= 1;
 	}
 
 	if (PurrDelay > 0)

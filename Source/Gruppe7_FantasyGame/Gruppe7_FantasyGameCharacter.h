@@ -133,6 +133,8 @@ public:
 
 		void PlayerAttackSound();
 
+		void VoiceIsFinished();
+
 		void DeathCheck();
 
 		void PlayerDead();
@@ -165,16 +167,10 @@ public:
 		USoundBase* AttackSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
-		USoundBase* YellSound01;
-
-	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* DamageSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* ShockSound01;
-
-	UPROPERTY(EditAnywhere, Category = "SFX")
-		USoundBase* PainSound01;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* CollectionPickupSound;
@@ -283,12 +279,12 @@ protected:
 
 	float MagicTimer = 0.f;
 
-	// Voice timers
-	int AllVoiceDelay = 0;
+	// Voice checks and values
 	int PurrDelay = 0; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
-		int VoiceTimer = 240;
+	bool VoiceIsActive;
+
+	FTimerHandle VoiceIsActiveTimerHandle;
 
 	/** Item functions */
 	void ManaPotion(float ManaRestore);

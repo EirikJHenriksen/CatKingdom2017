@@ -29,7 +29,7 @@ void AFinalBoss::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = 0.2f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
+	Health = 1.f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
 
 	isDoingSomething = false;
 
@@ -68,7 +68,7 @@ void AFinalBoss::Tick(float DeltaTime)
 		// Updates LookVector
 		UpdateDirection();
 
-		SetActorRotation(LookVector.Rotation()); // + FRotator(0.f, 180.f, 0.f)
+		SetActorRotation(FRotator(0.f, LookVector.Rotation().Yaw, 0.f)); // + FRotator(0.f, 180.f, 0.f)
 	}
 	
 	if (fightInProgress && !IsDying)
