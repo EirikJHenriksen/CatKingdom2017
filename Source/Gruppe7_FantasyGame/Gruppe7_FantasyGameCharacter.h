@@ -163,6 +163,8 @@ public:
 
 	bool HasConfronted;
 
+	FTimerHandle IntroTimerHandle;
+
 	///////////////////////////////////////////////////
 	// SFX.
 	UPROPERTY(EditAnywhere, Category = "SFX")
@@ -308,6 +310,8 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Tick(float DeltaSeconds);
+
+	void IntroDialogue();
 
 	// Spell switching.
 	void SpellSwapUp();

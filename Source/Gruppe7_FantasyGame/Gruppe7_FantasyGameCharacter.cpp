@@ -210,7 +210,8 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 
 		//Legg inn et delay så Fay, Night-Night og Wizard sier ting i rett rekkefølge.
 
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossEncounterVoice, GetActorLocation(), 1.f, 1.f);
+		GetWorldTimerManager().SetTimer(IntroTimerHandle, this, &AGruppe7_FantasyGameCharacter::IntroDialogue, 10.f, false);
+
 		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 3.f, false);
 	}
 
@@ -220,6 +221,12 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 		PlayerRespawn = false;
 		Respawner();
 	}
+}
+
+void AGruppe7_FantasyGameCharacter::IntroDialogue()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossEncounterVoice, GetActorLocation(), 1.f, 1.f);
+	GetWorld()->GetTimerManager().ClearTimer(IntroTimerHandle);
 }
 
 void AGruppe7_FantasyGameCharacter::SpellSwapUp()
@@ -433,9 +440,6 @@ void AGruppe7_FantasyGameCharacter::MagiThornCircle()
 	{	
 		GetWorld()->SpawnActor<ACircleOfThorns>(MagicThornCircleBlueprint, GetActorLocation() + GetActorForwardVector() * 1.f, GetActorRotation());
 
-		//Spiller skytelyd.
-		//UGameplayStatics::PlaySound2D(GetWorld(), CastSound, 1.f, 1.f, 0.f);
-
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
 	else if (Mana < ManaRequirement && !VoiceIsActive)
@@ -450,9 +454,6 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 {	
 	SpellIsContinuous = true;
 	SpellDelay = 15.f;
-
-	//Spiller av SFX.  - LEGG TIL EN FORM FOR DELAY SÅ SFX FUNGERER!!!
-	//MagiSound();
 
 	//Set the required mana for casting this spell.
 	float ManaRequirement{ 0.15f };

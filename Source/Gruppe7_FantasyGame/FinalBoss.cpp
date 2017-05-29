@@ -287,6 +287,9 @@ void AFinalBoss::AttackFirstStage()
 
 	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("ATTACK - FIRST STAGE!!"));
 
+	// Notifies game instance of attack so the wizard can warn the player.
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetBossAttack(true);
+
 	GetWorld()->GetTimerManager().ClearTimer(AttackTimerHandle);
 
 	GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &AFinalBoss::AttackSecondStage, 1.f, false);
@@ -303,6 +306,9 @@ void AFinalBoss::AttackSecondStage()
 	}
 
 	GetWorld()->GetTimerManager().ClearTimer(AnimAttackTimerHandle);
+
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetBossAttack(false);
+
 	animIsAttacking = false;
 	animStoppedAttacking = true;
 

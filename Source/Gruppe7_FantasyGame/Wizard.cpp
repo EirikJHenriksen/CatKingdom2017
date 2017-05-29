@@ -38,16 +38,11 @@ void AWizard::Tick(float DeltaTime)
 	}
 
 	// Plays dialogue if it fits the situation.
-	if (!VoiceIsActive)
-	{	
-		VoiceIsActive = true;
-		DialogueCheck();
-	}
+	DialogueCheck();
 
 	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetMana() <= 0.5f && !cloudIsActive)
 	{
 		cloudIsActive = true;
-
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Player needs mana!"));
 
 		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AWizard::Spawn, FMath::RandRange(RandomMin, RandomMax), false);
@@ -57,6 +52,8 @@ void AWizard::Tick(float DeltaTime)
 void AWizard::IntroDialogue()
 {
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardIntro, GetActorLocation());
+	GetWorld()->GetTimerManager().ClearTimer(IntroTimerHandle);
+
 	VoiceIsActive = false;
 }
 
@@ -76,9 +73,15 @@ void AWizard::Spawn()
 
 void AWizard::DialogueCheck()
 {	
-	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead())
-	{
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead() && !VoiceIsActive)
+	{	
+		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardPlayerDead, GetActorLocation(), 1.f, 1.f);
+	}
+	else if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossAttack() && !VoiceIsActive)
+	{	
+		VoiceIsActive = true;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardWarning, GetActorLocation(), 1.f, 1.f);
 	}
 
 	GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 2.f, false);
