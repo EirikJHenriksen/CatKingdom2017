@@ -116,7 +116,6 @@ void AEnemy_AI_Controller::ReturnState()
 void AEnemy_AI_Controller::DeadState()
 {
 	Cast<AEnemyBaseClass>(GetCharacter())->IsAttacking = false;
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("DEAD"));
 	StopMovement();
 	// nothing to do here, this is the final stop :'(
 }
