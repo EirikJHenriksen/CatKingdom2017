@@ -40,6 +40,9 @@ public:
 		USoundBase* WizardNotifySpawn;
 
 	UPROPERTY(EditAnywhere)
+		USoundBase* WizardWarning;
+
+	UPROPERTY(EditAnywhere)
 		USoundBase* WizardPlayerDead;
 
 	bool VoiceIsActive;

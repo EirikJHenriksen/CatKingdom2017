@@ -17,6 +17,8 @@ UFantasyGameInstance::UFantasyGameInstance(const FObjectInitializer& ObjectIniti
 	BossFightActive = false;
 
 	BossIsDead = false;
+
+	BossAttack = false;
 }
 
 float UFantasyGameInstance::GetHealth()
@@ -172,6 +174,16 @@ void UFantasyGameInstance::SetBossIsDead(bool status)
 bool UFantasyGameInstance::GetBossIsDead()
 {
 	return BossIsDead;
+}
+
+void UFantasyGameInstance::SetBossAttack(bool status)
+{
+	BossAttack = status;
+}
+
+bool UFantasyGameInstance::GetBossAttack()
+{
+	return BossAttack;
 }
 
 //void UFantasyGameInstance::SetPlayerVelocity(FVector Velocity)

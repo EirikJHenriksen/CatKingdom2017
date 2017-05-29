@@ -49,6 +49,9 @@ public:
 		bool GameIsWon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
+		bool BossAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
 		bool BossIsDead;
 
 	// Used to stop GameMode from creating a menu on every BeginPlay. It's only supposed to do it as a start menu
@@ -115,6 +118,10 @@ public:
 	void SetBossIsDead(bool status);
 
 	bool GetBossIsDead();
+
+	void SetBossAttack(bool status);
+
+	bool GetBossAttack();
 
 	//void SetPlayerVelocity(FVector Velocity);
 
