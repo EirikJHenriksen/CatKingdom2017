@@ -2,6 +2,7 @@
 
 #include "Gruppe7_FantasyGame.h"
 #include "EnemyBaseClass.h"
+#include "FantasyGameInstance.h"
 #include "Enemy_AI_Controller.h"
 
 
@@ -16,12 +17,20 @@ void AEnemy_AI_Controller::Tick(float DeltaTime)
 {
 Super::Tick(DeltaTime);
 
+
+
 // check if the character is dead
 if (Cast<AEnemyBaseClass>(GetCharacter())->IsDead)
 {
 	State = StateEnum::DEAD;
 }
 
+// check if the player is dead, in which case celebrate by standing idle
+if (Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead())
+{
+	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 1;
+	IdleState();
+}else{ 
 // Each tick run the function fitting current state
 switch (State)
 {
@@ -43,6 +52,7 @@ case StateEnum::DEAD:
 	break;
 default:
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("Switch not working in AIController"));
+}
 }
 }
 
