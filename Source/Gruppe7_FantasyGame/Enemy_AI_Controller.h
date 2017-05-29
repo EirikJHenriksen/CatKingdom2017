@@ -38,9 +38,6 @@ public:
 	void ReturnState();
 	void DeadState();
 
-	UFUNCTION (BlueprintCallable, Category = "State")
-	StateEnum EnumGetter();
-
 private:
 
 };

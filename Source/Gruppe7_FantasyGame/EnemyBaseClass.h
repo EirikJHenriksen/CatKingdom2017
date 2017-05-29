@@ -102,13 +102,19 @@ public:
 	// enemies follow you if they are hurt, this is a countdown until they will not follow
 	void PainForgetter();
 
+	UPROPERTY(BlueprintReadWrite, Category = "Animation")
 	bool IsDead = false;
+
 	UPROPERTY (BlueprintReadWrite, Category = "Animation")
 	bool IsAttacking = false;
 
 	// VFX
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem* DeathPoof;
+
+	// for animation
+	UPROPERTY(BlueprintReadWrite, Category = "State")
+		int32 AIState = 1;
 
 protected:
 	// Called when the game starts or when spawned
