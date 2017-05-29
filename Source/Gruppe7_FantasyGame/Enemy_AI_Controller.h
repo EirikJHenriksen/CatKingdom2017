@@ -16,6 +16,7 @@ enum class StateEnum : uint8
 	DEAD
 };
 
+
 UCLASS()
 class GRUPPE7_FANTASYGAME_API AEnemy_AI_Controller : public AAIController
 {
