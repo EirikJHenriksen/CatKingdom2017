@@ -26,16 +26,19 @@ if (Cast<AEnemyBaseClass>(GetCharacter())->IsDead)
 switch (State)
 {
 case StateEnum::IDLE:
-	// weak
+	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 1;
 	IdleState();
 	break;
 case StateEnum::FOLLOW:
+	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 2;
 	ApproachState();
 	break;
 case StateEnum::RETURN:
+	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 2;
 	ReturnState();
 	break;
 case StateEnum::DEAD:
+	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 4;
 	DeadState();
 	break;
 default:
@@ -116,9 +119,4 @@ void AEnemy_AI_Controller::DeadState()
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("DEAD"));
 	StopMovement();
 	// nothing to do here, this is the final stop :'(
-}
-
-StateEnum AEnemy_AI_Controller::EnumGetter()
-{
-	return State;
 }
