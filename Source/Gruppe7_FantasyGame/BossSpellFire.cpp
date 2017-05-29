@@ -54,6 +54,11 @@ void ABossSpellFire::Tick(float DeltaTime)
 	UpdateTarget();
 
 	ProjectileMovementComponent->OnProjectileStop;
+
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->PlayerIsDead)
+	{
+		Destroy();
+	}
 }
 
 void ABossSpellFire::UpdateTarget()

@@ -189,6 +189,32 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 		SetActorRotation(NewDirection.Rotation());
 	}
 
+	// Notifies player when their health is low.
+	if (Health < 0.2f && !HasComplained && !VoiceIsActive)
+	{
+		HasComplained = true;
+		VoiceIsActive = true;
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HealthComplain, GetActorLocation(), 1.f, 1.f);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 2.f, false);
+	}
+	else if (Health > 0.25f && HasComplained)
+	{
+		HasComplained = false;
+	}
+
+	// Plays the boss encounter dialogue.
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->BossFightActive && !VoiceIsActive)
+	{
+		VoiceIsActive = true;
+
+		//Legg inn et delay så Fay, Night-Night og Wizard sier ting i rett rekkefølge.
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossEncounterVoice, GetActorLocation(), 1.f, 1.f);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 3.f, false);
+	}
+
+	// Blueprint sets PlayerRespawn to true, this runs and respawns the player.
 	if (PlayerRespawn)
 	{	
 		PlayerRespawn = false;

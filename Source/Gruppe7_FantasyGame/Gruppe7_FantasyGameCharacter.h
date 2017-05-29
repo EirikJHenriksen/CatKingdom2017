@@ -138,6 +138,7 @@ public:
 		void DeathCheck();
 
 		void PlayerDead();
+
 	///////////////////////////////////////////////////
 	// VOICE.
 	UPROPERTY(EditAnywhere, Category = "Voice")
@@ -154,6 +155,13 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Voice")
 		USoundBase* NeedMana;
+
+	UPROPERTY(EditAnywhere, Category = "Voice")
+		USoundBase* HealthComplain;
+
+	bool HasComplained;
+
+	bool HasConfronted;
 
 	///////////////////////////////////////////////////
 	// SFX.
