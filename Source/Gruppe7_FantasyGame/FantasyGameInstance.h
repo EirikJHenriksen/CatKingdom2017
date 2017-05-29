@@ -14,11 +14,6 @@ class GRUPPE7_FANTASYGAME_API UFantasyGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 public:
-	// to display the cost of the next "crystal door"
-	// starts as 1 because that's the cost of the first door
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Crystal)
-	int NextCost = 1;
-
 	// Sets default values for main character.
 
 	UFantasyGameInstance(const FObjectInitializer& ObjectInitializer);
@@ -53,6 +48,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
 		bool BossIsDead;
+
+	// to display the cost of the next "crystal door"
+	// starts as 1 because that's the cost of the first door
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
+		int NextCost = 1;
 
 	// Used to stop GameMode from creating a menu on every BeginPlay. It's only supposed to do it as a start menu
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
@@ -123,7 +123,5 @@ public:
 
 	bool GetBossAttack();
 
-	//void SetPlayerVelocity(FVector Velocity);
-
-	//FVector GetPlayerVelocity();
+	void SetNextCost(int cost);
 };

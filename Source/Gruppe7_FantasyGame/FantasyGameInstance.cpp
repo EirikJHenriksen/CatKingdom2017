@@ -186,12 +186,7 @@ bool UFantasyGameInstance::GetBossAttack()
 	return BossAttack;
 }
 
-//void UFantasyGameInstance::SetPlayerVelocity(FVector Velocity)
-//{
-//	PlayerVelocity = Velocity;
-//}
-//
-//FVector UFantasyGameInstance::GetPlayerVelocity()
-//{
-//	return PlayerVelocity;
-//}
+void UFantasyGameInstance::SetNextCost(int cost)
+{
+	NextCost = cost;
+}

@@ -585,6 +585,11 @@ void AGruppe7_FantasyGameCharacter::Respawner()
 	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
 	{	
 		Cast<UFantasyGameInstance>(GetGameInstance())->SetBossIsDead(false);
+		Cast<UFantasyGameInstance>(GetGameInstance())->SetCurrentLevel(1);
+
+		Cast<UFantasyGameInstance>(GetGameInstance())->SetNextCost(1);
+		CollectionPickup = 0;
+
 		GetWorld()->ServerTravel(FString("/Game/Maps/Level01_TheForest"));
 	}
 
@@ -604,20 +609,22 @@ void AGruppe7_FantasyGameCharacter::Respawner()
 		break;
 	}
 
-	Cast<UFantasyGameInstance>(GetGameInstance())->RestoreHealth(1.f);
 	Health = 1.f;
-	Cast<UFantasyGameInstance>(GetGameInstance())->RestoreMana(1.f);
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetHealth(1.f);
 	Mana = 1.f;
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetMana(1.f);
+
+	Cast<UFantasyGameInstance>(GetGameInstance())->SetNextCost(1);
+	CollectionPickup = 0;
 
 	Cast<UFantasyGameInstance>(GetGameInstance())->SetBossFightActive(false);
 	Cast<UFantasyGameInstance>(GetGameInstance())->SetPlayerIsDead(false);
 	Cast<UFantasyGameInstance>(GetGameInstance())->SetBossIsDead(false);
 
-	GetWorld()->GetTimerManager().ClearTimer(PlayerDeadTimerHandle);
-
 	AnimPlayerIsDying = false;
 	PlayerIsDead = false;
-	CollectionPickup = 0;
+
+	GetWorld()->GetTimerManager().ClearTimer(PlayerDeadTimerHandle);
 }
 
 void AGruppe7_FantasyGameCharacter::MagiSound()

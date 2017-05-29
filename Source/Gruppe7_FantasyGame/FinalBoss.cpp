@@ -173,8 +173,22 @@ void AFinalBoss::VoiceIsFinished()
 	GetWorld()->GetTimerManager().ClearTimer(VoiceIsActiveTimerHandle);
 }
 
+void AFinalBoss::SetRandomElement()
+{
+	RandomElement = FMath::RandRange(0, 2);
+
+	if (RandomElement == Element)
+	{
+		SetRandomElement();
+		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("RETRY TO GET ELEMENT!!!"));
+	}
+}
+
 void AFinalBoss::TeleportFirstStage()
 {	
+	// Makes sure boss doesn't teleport to same spot as he's currently at.
+	SetRandomElement();
+
 	animIsTeleporting = true;
 	animStoppedTeleporting = false;
 
@@ -186,8 +200,6 @@ void AFinalBoss::TeleportFirstStage()
 		GetWorld()->GetTimerManager().ClearTimer(FirstTeleportTimerHandle);
 	}
 
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("TELEPORT - FIRST STAGE!!"));
-
 	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::TeleportSecondStage, 2.7f, false);
 }
 
@@ -195,75 +207,27 @@ void AFinalBoss::TeleportSecondStage()
 {	
 	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORTER - FUNCTION IN PROGRESS"));
 
-	// Teleports the boss to one of three random spots.
-	int random = FMath::RandRange(0, 2);
+	//SFX.
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, GetActorLocation(), 1.f);
+	//VFX.
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportFX, GetTransform(), true);
 
-	// FIKS så dette fungerer bedre!
-
-	switch (random)
+	switch (RandomElement)
 	{
 	default:
 		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH BOSS TELEPORT! FUNCTION: Teleport()"));
 		break;
 	case 0:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORT - FIRE"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, GetActorLocation());
-		//VFX.
-		if (Element != 0)
-		{
-			Element = 0;
-			SetActorLocation(FVector(FireX, FireY, FireZ), false);
-		}
-		else if (Element != 1)
-		{
-			Element = 1;
-			SetActorLocation(FVector(WaterX, WaterY, WaterZ), false);
-		}
-		else
-		{
-			Element = 2;
-			SetActorLocation(FVector(NatureX, NatureY, NatureZ), false);
-		}
+		Element = 0;
+		SetActorLocation(FVector(FireX, FireY, FireZ), false);
 		break;
 	case 1:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORT - WATER"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), SFX02, GetActorLocation());
-		//VFX.
-		if (Element != 1)
-		{
-			Element = 1;
-			SetActorLocation(FVector(WaterX, WaterY, WaterZ), false);
-		}
-		else if (Element != 2)
-		{
-			Element = 2;
-			SetActorLocation(FVector(NatureX, NatureY, NatureZ), false);
-		}
-		else
-		{
-			Element = 0;
-			SetActorLocation(FVector(FireX, FireY, FireZ), false);
-		}
+		Element = 1;
+		SetActorLocation(FVector(WaterX, WaterY, WaterZ), false);
 		break;
 	case 2:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORT - NATURE"));
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), SFX03, GetActorLocation());
-		//VFX.
-		if (Element != 1)
-		{
-			Element = 2;
-			SetActorLocation(FVector(NatureX, NatureY, NatureZ), false);
-		}
-		else if (Element != 0)
-		{
-			Element = 0;
-			SetActorLocation(FVector(FireX, FireY, FireZ), false);
-		}
-		else
-		{
-			Element = 1;
-			SetActorLocation(FVector(WaterX, WaterY, WaterZ), false);
-		}
+		Element = 2;
+		SetActorLocation(FVector(NatureX, NatureY, NatureZ), false);
 		break;
 	}
 

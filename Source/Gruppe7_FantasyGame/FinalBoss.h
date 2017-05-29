@@ -73,10 +73,13 @@ public:
 	// VFX.
 
 	UPROPERTY(EditAnywhere, Category = "VFX")
-		UParticleSystem *WaterHitFX;
+		UParticleSystem* WaterHitFX;
 
 	UPROPERTY(EditAnywhere, Category = "VFX")
-		UParticleSystem *HitFailFX;
+		UParticleSystem* HitFailFX;
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem* TeleportFX;
 
 	/////////////////////////////////////////
 	// Stats.
@@ -155,6 +158,8 @@ public:
 	// TELEPORTATION VARIABLES.
 	void TeleportFirstStage();
 
+	void SetRandomElement();
+
 	void TeleportSecondStage();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Fight")
@@ -165,6 +170,8 @@ public:
 	bool firstTeleportOver;
 	
 	bool canBeHurt;
+
+	int RandomElement;
 
 	FTimerHandle TeleportTimerHandle;
 
