@@ -29,7 +29,7 @@ void AFinalBoss::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = 1.f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
+	Health = 0.2f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
 
 	isDoingSomething = false;
 

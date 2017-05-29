@@ -40,7 +40,7 @@ void AWizard::Tick(float DeltaTime)
 	// Plays dialogue if it fits the situation.
 	DialogueCheck();
 
-	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetMana() <= 0.5f && !cloudIsActive)
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetMana() <= 0.5f && !cloudIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
 	{
 		cloudIsActive = true;
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Player needs mana!"));
@@ -63,7 +63,7 @@ void AWizard::Spawn()
 
 	GetWorld()->SpawnActor<AWizardCloud>(WizardCloudBlueprint, GetActorLocation() + GetActorForwardVector() * 200.f, GetActorRotation());
 	
-	if (!VoiceIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead())
+	if (!VoiceIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead() && !Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
 	{
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardNotifySpawn, GetActorLocation());
 	}

@@ -26,5 +26,10 @@ void AWizardCloud::BeginPlay()
 void AWizardCloud::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
+	{
+		Destroy();
+	}
 }
 

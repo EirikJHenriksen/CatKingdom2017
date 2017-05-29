@@ -581,8 +581,10 @@ void AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver()
 
 void AGruppe7_FantasyGameCharacter::Respawner()
 {	
-	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetGameIsWon())
-	{
+	// Loads first level after game is won.
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
+	{	
+		Cast<UFantasyGameInstance>(GetGameInstance())->SetBossIsDead(false);
 		GetWorld()->ServerTravel(FString("/Game/Maps/Level01_TheForest"));
 	}
 
