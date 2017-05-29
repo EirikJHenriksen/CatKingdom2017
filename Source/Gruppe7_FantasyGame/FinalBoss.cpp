@@ -39,6 +39,14 @@ void AFinalBoss::BeginPlay()
 
 	firstTeleportOver = false;
 
+	PlayerIsDead = false;
+
+	BossIsAnnoyed = false;
+
+	//////////////////////////////
+	// Voice.
+	VoiceIsActive = true;
+
 	//////////////////////////////
 	// Animation.
 	animStoppedAttacking = true;
@@ -62,6 +70,22 @@ void AFinalBoss::Tick(float DeltaTime)
 	// Keeps track of the players location. IMPORTANT THAT IT STAYS IN TICK FUNCTION.
 	CurrentPlayerLocation = Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerLocation();
 
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead() && !BossWinVoicePlayed)
+	{	
+		BossWinVoicePlayed = true;
+		PlayerIsDead = true;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossWin, GetActorLocation(), 1.f);
+	}
+
+	if (Health < 0.5f && !BossIsAnnoyed && !VoiceIsActive)
+	{	
+		BossIsAnnoyed = true;
+		VoiceIsActive = true;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossAnnoyed, GetActorLocation(), 1.f);
+
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::TeleportFirstStage, 3.f, false);
+	}
+		
 	// Turns boss towards player.
 	if (!IsDying)
 	{	
@@ -143,6 +167,12 @@ void AFinalBoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void AFinalBoss::VoiceIsFinished()
+{
+	VoiceIsActive = false;
+	GetWorld()->GetTimerManager().ClearTimer(VoiceIsActiveTimerHandle);
+}
+
 void AFinalBoss::TeleportFirstStage()
 {	
 	animIsTeleporting = true;
@@ -151,6 +181,7 @@ void AFinalBoss::TeleportFirstStage()
 	if (!canBeHurt)
 	{
 		canBeHurt = true;
+		VoiceIsActive = false;
 
 		GetWorld()->GetTimerManager().ClearTimer(FirstTeleportTimerHandle);
 	}
@@ -264,7 +295,7 @@ void AFinalBoss::AttackFirstStage()
 void AFinalBoss::AttackSecondStage()
 {	
 	UWorld* World = GetWorld();
-	if (World)
+	if (World && !PlayerIsDead)
 	{
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("NIGHT NIGHT ATTACK"));
 		GetWorld()->SpawnActor<ABossSpellFire>(SpellFireBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
@@ -339,10 +370,9 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
 		}
-		else
+		else if (!VoiceIsActive)
 		{
-			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Tar ikke damage!"));
-			//Spill av partikkeleffekt og lyd. - Onskapsfull latter som viser at angrepet ikke gjør noe. - LAG EGEN FUNKSJON!!!
+			ResistAttack();
 		}
 	}
 
@@ -356,10 +386,9 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
 		}
-		else
+		else if (!VoiceIsActive)
 		{
-			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Tar ikke damage!"));
-			//Spill av partikkeleffekt og lyd. - Onskapsfull latter som viser at angrepet ikke gjør noe. - LAG EGEN FUNKSJON!!!
+			ResistAttack();
 		}
 	}
 
@@ -373,14 +402,26 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
 		}
-		else
+		else if (!VoiceIsActive)
 		{
-			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Tar ikke damage!"));
-			//Spill av partikkeleffekt og lyd. - Onskapsfull latter som viser at angrepet ikke gjør noe. - LAG EGEN FUNKSJON!!!
+			ResistAttack();
 		}
 	}
 
 	DeathCheck();
+}
+
+void AFinalBoss::ResistAttack()
+{	
+	VoiceIsActive = true;
+
+	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Tar ikke damage!"));
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossLaugh, GetActorLocation(), 1.f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FailSparkSound, GetActorLocation(), 1.f);
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFailFX, GetTransform(), true);
+
+	GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 3.f, false);
 }
 
 void AFinalBoss::IsNowDead()
@@ -388,7 +429,9 @@ void AFinalBoss::IsNowDead()
 	IsDead = true;
 	GetWorld()->GetTimerManager().ClearTimer(AnimDyingTimerHandle);
 
-	GetWorldTimerManager().SetTimer(BossDeadTimerHandle, this, &AFinalBoss::GameWon, 5.f, false);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossDeathScream, GetActorLocation(), 1.f);
+
+	GetWorldTimerManager().SetTimer(BossDeadTimerHandle, this, &AFinalBoss::GameWon, 8.f, false);
 }
 
 void AFinalBoss::DeathCheck()
@@ -419,6 +462,8 @@ void AFinalBoss::DeathCheck()
 		if (!IsDead)
 		{	
 			Cast<UFantasyGameInstance>(GetGameInstance())->SetBossIsDead(true);
+
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossDefeatComplain, GetActorLocation(), 1.f);
 
 			GetWorldTimerManager().SetTimer(AnimDyingTimerHandle, this, &AFinalBoss::IsNowDead, 5.2f, false);
 		}

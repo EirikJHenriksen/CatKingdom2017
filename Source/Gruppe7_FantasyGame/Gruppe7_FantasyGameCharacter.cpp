@@ -531,7 +531,7 @@ void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
 	// Prevents multiple power-ups at once.
 	PlayerHasPowerup = true;
 
-	PlayerMovementSpeed = 1200.f;
+	PlayerMovementSpeed = 1000.f;
 	GetCharacterMovement()->MaxWalkSpeed = PlayerMovementSpeed;
 
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PwrUpSound, GetActorLocation(), 2.f, 1.f);

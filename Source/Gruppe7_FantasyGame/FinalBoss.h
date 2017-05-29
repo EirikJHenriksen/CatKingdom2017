@@ -33,6 +33,31 @@ public:
 	UPROPERTY(EditAnywhere)
 		USoundBase* BossHurt;
 
+	UPROPERTY(EditAnywhere)
+		USoundBase* BossLaugh;
+
+	UPROPERTY(EditAnywhere)
+		USoundBase* BossAnnoyed;
+
+	UPROPERTY(EditAnywhere)
+		USoundBase* BossDefeatComplain;
+
+	UPROPERTY(EditAnywhere)
+		USoundBase* BossDeathScream;
+
+	UPROPERTY(EditAnywhere)
+		USoundBase* BossWin;
+
+	void VoiceIsFinished();
+
+	bool VoiceIsActive;
+
+	bool BossIsAnnoyed;
+
+	bool BossWinVoicePlayed;
+
+	FTimerHandle VoiceIsActiveTimerHandle;
+
 	/////////////////////////////////////////
 	// SFX.
 	UPROPERTY(EditAnywhere)
@@ -41,11 +66,17 @@ public:
 	UPROPERTY(EditAnywhere)
 		USoundBase* TeleportSound;
 
+	UPROPERTY(EditAnywhere)
+		USoundBase* FailSparkSound;
+
 	/////////////////////////////////////////
 	// VFX.
 
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem *WaterHitFX;
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem *HitFailFX;
 
 	/////////////////////////////////////////
 	// Stats.
@@ -140,10 +171,10 @@ public:
 	FTimerHandle FirstTeleportTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action timers")
-		float RandomMin = 0.f;
+		float RandomMin = 3.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action timers")
-		float RandomMax = 3.f;
+		float RandomMax = 6.f;
 
 	float RandomActionTime = 0.f;
 
@@ -191,6 +222,8 @@ public:
 
 	bool isDoingSomething;
 
+	bool PlayerIsDead;
+
 	FTimerHandle AttackTimerHandle;
 
 	FTimerHandle SummonTimerHandle;
@@ -200,6 +233,8 @@ public:
 	// Overlap function
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	void ResistAttack();
 
 	void IsNowDead();
 	
