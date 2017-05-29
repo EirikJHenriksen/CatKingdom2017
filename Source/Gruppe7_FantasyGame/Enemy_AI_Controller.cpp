@@ -11,16 +11,16 @@ AEnemy_AI_Controller::AEnemy_AI_Controller()
 	State = StateEnum::IDLE;
 }
 
-//void AEnemy_AI_Controller::Possess(APawn *InPawn)
-//{
-//	Super::Possess(InPawn);
-//	AEnemyBaseClass *Char = Cast<AEnemyBaseClass>(InPawn);
-//}
-//
 // Called every frame
 void AEnemy_AI_Controller::Tick(float DeltaTime)
 {
 Super::Tick(DeltaTime);
+
+// check if the character is dead
+if (Cast<AEnemyBaseClass>(GetCharacter())->IsDead)
+{
+	State = StateEnum::DEAD;
+}
 
 // Each tick run the function fitting current state
 switch (State)
@@ -35,9 +35,9 @@ case StateEnum::FOLLOW:
 case StateEnum::RETURN:
 	ReturnState();
 	break;
-//case StateEnum::ATTACK:
-//	AttackState();
-//	break;
+case StateEnum::DEAD:
+	DeadState();
+	break;
 default:
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("Switch not working in AIController"));
 }
@@ -48,12 +48,13 @@ default:
 ///// IDLE /////
 void AEnemy_AI_Controller::IdleState()
 {
-
+	Cast<AEnemyBaseClass>(GetCharacter())->IsAttacking = false;
 	///// check for change /////
 	if (Cast<AEnemyBaseClass>(GetCharacter())->CanSeePlayer())
 	{
 		State = StateEnum::FOLLOW;
 	}
+	// Will run after you if you hurt them:
 	if (Cast<AEnemyBaseClass>(GetCharacter())->GetInPain())
 	{
 		State = StateEnum::FOLLOW;
@@ -65,6 +66,12 @@ void AEnemy_AI_Controller::ApproachState()
 {
 	// runs to the player
 	MoveToActor(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0), 5.f, true, true, true, 0, true);
+
+	// stop attack animation if too far away
+	if ( Cast<AEnemyBaseClass>(GetCharacter())->GetDistanceToPlayer() > 100.f )
+	{
+		Cast<AEnemyBaseClass>(GetCharacter())->IsAttacking = false;
+	}
 	
 	///// check for change /////
 	if (!Cast<AEnemyBaseClass>(GetCharacter())->CanSeePlayer())
@@ -80,6 +87,7 @@ void AEnemy_AI_Controller::ApproachState()
 ///// RETURN /////
 void AEnemy_AI_Controller::ReturnState()
 {
+	Cast<AEnemyBaseClass>(GetCharacter())->IsAttacking = false;
 	// go home
 	FVector MyHome = Cast<AEnemyBaseClass>(GetCharacter())->GetMyStartLocation();
 	FVector CurrentLocation = GetCharacter()->GetActorLocation();
@@ -100,4 +108,17 @@ void AEnemy_AI_Controller::ReturnState()
 	{
 		State = StateEnum::FOLLOW;
 	}
+}
+
+void AEnemy_AI_Controller::DeadState()
+{
+	Cast<AEnemyBaseClass>(GetCharacter())->IsAttacking = false;
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("DEAD"));
+	StopMovement();
+	// nothing to do here, this is the final stop :'(
+}
+
+StateEnum AEnemy_AI_Controller::EnumGetter()
+{
+	return State;
 }

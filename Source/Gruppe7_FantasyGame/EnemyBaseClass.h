@@ -77,22 +77,16 @@ public:
 	// sets DistanceToPlayer
 	void UpdateDistance();
 
-	//// Called to bind functionality to input
-	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	// Overlap function.
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
 
 	void DeathCheck();
+	void Death();
 
 	void EnemyIsHit(float force, float duration);
 
 	void SlowdownOver();
-
-	// Should safely remove this at some point...
-	UPROPERTY(EditAnywhere, Category = Behavior)
-		class UBehaviorTree *BotBehavior;
 
 	// Distance detection variables.
 	FVector CurrentPlayerLocation;
@@ -105,7 +99,16 @@ public:
 
 	bool CanSeePlayer();
 
+	// enemies follow you if they are hurt, this is a countdown until they will not follow
 	void PainForgetter();
+
+	bool IsDead = false;
+	UPROPERTY (BlueprintReadWrite, Category = "Animation")
+	bool IsAttacking = false;
+
+	// VFX
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem* DeathPoof;
 
 protected:
 	// Called when the game starts or when spawned
@@ -148,14 +151,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* EnemyHurtSound;
 
-
-	//lets try to make enemies follow you if they are hurt
+	//enemies follow you if they are hurt, while this is more then 0
 	float RememberPain = 0;
 
-	//typedef void (AEnemyBaseClass::*FunctionPointer)(void);
-	//trying to make a function pointer for states, basically
-	//FunctionPointer (*AIFunctionPointer)() = &StateIdle;
-/*
-	typedef void(AEnemyBaseClass::*AIFunctionPointerType)(void);
-	AIFunctionPointerType AIFunction = &AEnemyBaseClass::StateIdle;*/
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	int AttackSoundDelayLength = 30;
+
+	int AttackSoundDelay = 0;
+
+
 };

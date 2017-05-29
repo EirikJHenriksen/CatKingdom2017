@@ -21,9 +21,6 @@ AEnemyAttackBox::AEnemyAttackBox()
 void AEnemyAttackBox::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// DEBUG.
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, TEXT("ENEMY - PHYSICAL ATTACK!"));
 }
 
 // Called every frame

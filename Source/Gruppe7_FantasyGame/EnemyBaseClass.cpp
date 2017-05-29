@@ -64,6 +64,11 @@ void AEnemyBaseClass::Tick(float DeltaTime)
 		HealthPoints = 0.f;
 		DeathCheck();
 	}
+
+	if (AttackSoundDelay > 0)
+	{
+		AttackSoundDelay--;
+	}
 }
 
 // getters
@@ -87,6 +92,7 @@ void AEnemyBaseClass::MeleeAttack()
 	UWorld* World = GetWorld();
 	if (World)
 	{
+		IsAttacking = true;
 		FVector Location = GetActorLocation();
 		FVector Offset = FVector(0.0f, 0.0f, 0.0f);
 
@@ -96,9 +102,15 @@ void AEnemyBaseClass::MeleeAttack()
 
 		GetWorld()->SpawnActor<AEnemyAttackBox>(EnemyAttackBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
 
-		float RandomValue = FMath::RandRange(0.8f, 1.2f);
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
+		if ( AttackSoundDelay <= 0 )
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("attack sound"));
+			AttackSoundDelay = AttackSoundDelayLength;
+			float RandomValue = FMath::RandRange(0.8f, 1.2f);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
+		}
 	}
+	
 }
 
 // gets the distance to player
@@ -229,28 +241,44 @@ void AEnemyBaseClass::DeathCheck()
 		// Lyd når de dør.
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyDeathSound, GetActorLocation());
 
-		Destroy();
+		// set state to dead. delay for animation time
+		IsDead = true;
 
-		if (!Cast<UFantasyGameInstance>(GetGameInstance())->BossFightActive) // do this unless it is the boss battle
+		//Delay for DeathDelay seconds, then run Death()
+		FTimerHandle UnusedHandle;
+		float DeathDelay = 1.0f;
+		GetWorldTimerManager().SetTimer(UnusedHandle, this, &AEnemyBaseClass::Death, DeathDelay, false);
+
+	}
+}
+
+// to be run after death animation is finished
+void AEnemyBaseClass::Death()
+{
+	Destroy();
+
+	// particle effect DeathPoof
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathPoof, GetTransform(), true);
+
+	if (!Cast<UFantasyGameInstance>(GetGameInstance())->BossFightActive) // do this unless it is the boss battle
+	{
+		GetWorld()->SpawnActor<ACrystalPawn>(CrystalBlueprint, GetActorLocation() + FVector(0.f, -30.f, 0.f), GetActorRotation());
+	}
+
+
+	// might spawn potion
+	if (FMath::RandRange(0, 1) == 0)
+	{
+		//// randomize which potion is spawned
+		if (FMath::RandRange(0, 2) == 0)
 		{
-			GetWorld()->SpawnActor<ACrystalPawn>(CrystalBlueprint, GetActorLocation() + FVector(0.f, -30.f, 0.f), GetActorRotation());
+			// spawn health potion
+			GetWorld()->SpawnActor<AHealthPotion>(HealthBlueprint, GetActorLocation() + FVector(0.f, 30.f, 0.f), GetActorRotation());
 		}
-		
-
-		// might spawn potion
-		if (FMath::RandRange(0, 1) == 0)
+		else
 		{
-			//// randomize which potion is spawned
-			if (FMath::RandRange(0, 2) == 0)
-			{
-				// spawn health potion
-				GetWorld()->SpawnActor<AHealthPotion>(HealthBlueprint, GetActorLocation() + FVector(0.f, 30.f, 0.f), GetActorRotation());
-			}
-			else
-			{
-				// spawn mana potion
-				GetWorld()->SpawnActor<AManaPotion>(ManaBlueprint, GetActorLocation() + FVector(0.f, 30.f, 0.f), GetActorRotation());
-			}
+			// spawn mana potion
+			GetWorld()->SpawnActor<AManaPotion>(ManaBlueprint, GetActorLocation() + FVector(0.f, 30.f, 0.f), GetActorRotation());
 		}
 	}
 }
@@ -312,6 +340,7 @@ bool AEnemyBaseClass::CanSeePlayer()
 						AttackTimer = 0.f;
 					}
 				}
+				
 				return true;
 			}
 		}

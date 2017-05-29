@@ -13,9 +13,8 @@ enum class StateEnum : uint8
 	IDLE,
 	FOLLOW,
 	RETURN,
-	ATTACK
+	DEAD
 };
-
 
 UCLASS()
 class GRUPPE7_FANTASYGAME_API AEnemy_AI_Controller : public AAIController
@@ -30,7 +29,6 @@ public:
 
 	//virtual void Possess(APawn *InPawn) override;
 
-
 	virtual void Tick(float DeltaTime) override;
 
 	//FVector MyHome;
@@ -38,7 +36,10 @@ public:
 	void IdleState();
 	void ApproachState();
 	void ReturnState();
-	//void AttackState();
+	void DeadState();
+
+	UFUNCTION (BlueprintCallable, Category = "State")
+	StateEnum EnumGetter();
 
 private:
 
