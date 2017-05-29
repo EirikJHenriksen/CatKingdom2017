@@ -2,6 +2,7 @@
 
 #include "Gruppe7_FantasyGame.h"
 #include "CircleOfThorns.h"
+#include "FantasyGameInstance.h"
 #include "BossSpellFire.h"
 
 
@@ -26,10 +27,9 @@ void ACircleOfThorns::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, -50.f));
+	PlayerVector = Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerLocation();
 
-	//Spiller av VFX.
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EarthEffect, GetTransform(), true);
+	SetActorLocation(FVector(PlayerVector.X, PlayerVector.Y, (PlayerVector.Z - 120.f)));
 }
 
 // Called every frame
@@ -40,11 +40,12 @@ void ACircleOfThorns::Tick(float DeltaTime)
 	// Makes it grow up from the ground.
 	FVector NewLocation = GetActorLocation() + (CurrentVelocity * DeltaTime);
 	SetActorLocation(NewLocation);
+
 	if (!Stopped)
 	{
 		CurrentVelocity.Z = 800.0f;
 	}
-	if (NewLocation.Z > 180.0f)
+	if (NewLocation.Z > (PlayerVector.Z + 50.0f))
 	{
 		Stopped = true;
 		CurrentVelocity.Z = 0.0f;

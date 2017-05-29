@@ -22,9 +22,7 @@ public:
 
 	bool Stopped = false;
 
-	// VFX.
-	UPROPERTY(EditAnywhere, Category = "VFX")
-		UParticleSystem* EarthEffect;
+	FVector PlayerVector;
 
 protected:
 	// Called when the game starts or when spawned

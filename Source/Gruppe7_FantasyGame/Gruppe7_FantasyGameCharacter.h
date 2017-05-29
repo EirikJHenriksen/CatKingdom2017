@@ -210,6 +210,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem* HealFX;
 
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem* EarthEffect;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 		int CollectionPickup = 0;
 

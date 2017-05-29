@@ -435,6 +435,9 @@ void AGruppe7_FantasyGameCharacter::MagiThornCircle()
 	//Spiller av SFX.
 	MagiSound();
 
+	//Spiller av VFX.
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EarthEffect, FTransform(GetActorRotation().Quaternion(), (FVector(GetActorLocation().X, GetActorLocation().Y,(GetActorLocation().Z - 225.f))), FVector(1.f, 1.f, 1.f)), true);
+
 	UWorld* World = GetWorld();
 	if (World && (Mana >= ManaRequirement))
 	{	
