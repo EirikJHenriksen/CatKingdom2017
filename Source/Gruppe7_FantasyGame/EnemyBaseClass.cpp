@@ -104,7 +104,6 @@ void AEnemyBaseClass::MeleeAttack()
 
 		if ( AttackSoundDelay <= 0 )
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("attack sound"));
 			AttackSoundDelay = AttackSoundDelayLength;
 			float RandomValue = FMath::RandRange(0.8f, 1.2f);
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
