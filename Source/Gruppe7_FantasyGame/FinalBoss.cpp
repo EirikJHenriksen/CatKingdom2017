@@ -378,7 +378,7 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 	{
 		if (canBeHurt && Element == 2)
 		{
-			Health -= 0.04f;
+			Health -= 0.03f;
 
 			// Camera shake.
 			Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
