@@ -72,6 +72,18 @@ void AEnemy_AI_Controller::IdleState()
 	{
 		State = StateEnum::FOLLOW;
 	}
+
+	// Roaming stuff!!!
+	if (Cast<AEnemyBaseClass>(GetCharacter())->GetRoaming())
+	{	
+		//Går til destinasjon!!!
+		MoveToLocation(Cast<AEnemyBaseClass>(GetCharacter())->GetMyDestination(), 5.f, true, true, true, false, 0, true);
+	}
+	else
+	{
+		//Returnerer til startpunkt!!!
+		MoveToLocation(Cast<AEnemyBaseClass>(GetCharacter())->GetMyStartLocation(), 5.f, true, true, true, false, 0, true);
+	}
 }
 
 ///// FOLLOW /////

@@ -30,8 +30,16 @@ AEnemyBaseClass::AEnemyBaseClass()
 	GetCharacterMovement()->AirControlBoostMultiplier = 0.f;
 	GetCharacterMovement()->AirControlBoostVelocityThreshold = 0.f;
 
-	// Attenuation
-	DamageAtt = CreateDefaultSubobject<USoundAttenuation>(TEXT("WaterImpactlAttenuation"));
+	// Smooth rotations
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 180.f, 0.0f);
+
+
+	// Sets various parameters
+	Roaming = false;
+
+	WantsToGo = true;
 }
 
 // Called when the game starts or when spawned
@@ -52,6 +60,15 @@ void AEnemyBaseClass::Tick(float DeltaTime)
 
 	// Keeps track of the players location. IMPORTANT THAT IT STAYS IN TICK FUNCTION.
 	CurrentPlayerLocation = Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerLocation();
+
+	if (WantsToGo)
+	{
+		WantsToGo = false;
+
+		WalkRandomly();
+
+		GetWorldTimerManager().SetTimer(WantsToGoTimerHandle, this, &AEnemyBaseClass::WalkRandomly, FMath::RandRange(1.f, 5.f), false);
+	}
 
 	if (RememberPain != 0)
 	{
@@ -105,8 +122,7 @@ void AEnemyBaseClass::MeleeAttack()
 		if ( AttackSoundDelay <= 0 )
 		{
 			AttackSoundDelay = AttackSoundDelayLength;
-			float RandomValue = FMath::RandRange(0.8f, 1.2f);
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound, GetActorLocation(), 1.f, 1.f);
 		}
 	}
 	
@@ -121,6 +137,36 @@ void AEnemyBaseClass::UpdateDistance()
 	DistanceToPlayer = DistanceVector.Size();
 }
 
+void AEnemyBaseClass::WalkRandomly()
+{	
+	// JOBBE VIDER HERIFRA!!! Juster 500.f for å sette hvor langt de kan gå. Juster timerne!
+	RandomDestination = EnemyNavSys->GetRandomReachablePointInRadius(this, GetActorLocation(), 500.f);
+	Roaming = true;
+
+	GetWorld()->GetTimerManager().ClearTimer(WantsToGoTimerHandle);
+
+	GetWorldTimerManager().SetTimer(RoamingEndTimerHandle, this, &AEnemyBaseClass::WalkRandomlyEnd, FMath::RandRange(1.f, 5.f), false);
+}
+
+void AEnemyBaseClass::WalkRandomlyEnd()
+{	
+	// Ends the walk and returns to start.
+	Roaming = false;
+	WantsToGo = true;
+
+	GetWorld()->GetTimerManager().ClearTimer(RoamingEndTimerHandle);
+}
+
+FVector AEnemyBaseClass::GetMyDestination()
+{
+	return RandomDestination;
+}
+
+bool AEnemyBaseClass::GetRoaming()
+{
+	return Roaming;
+}
+
 // When attacked by player
 void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
@@ -133,7 +179,7 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
 
 		float RandomValue = FMath::RandRange(0.8f, 1.2f);
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PhysImpactSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PhysImpactSound, GetActorLocation(), 0.5f, RandomValue);
 
 		// Pushes the enemy back. They get slowed down for some time. (FORCE, DURATION).
 		EnemyIsHit(1000.f, 1.5f);
@@ -170,7 +216,7 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 
 		//Spiller av SFX.
 		float RandomValue = FMath::RandRange(0.8f, 1.2f);
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WaterImpactSound, GetActorLocation(), 1.f, RandomValue, 0.f, DamageAtt);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WaterImpactSound, GetActorLocation(), 1.f, RandomValue);
 
 		//Spiller av VFX.
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WaterHitFX, GetTransform(), true);
@@ -224,7 +270,7 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 
 	//Spiller av SFX.
 	float RandomValue = FMath::RandRange(0.8f, 1.2f);
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyHurtSound, GetActorLocation(), 0.5f, RandomValue, 0.f, DamageAtt);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyHurtSound, GetActorLocation(), 0.5f, RandomValue);
 
 	// every time enemy is hurt it will follow player for 150 frames, no matter what
 	RememberPain = 150.f;
@@ -333,7 +379,7 @@ bool AEnemyBaseClass::CanSeePlayer()
 				if (DistanceToPlayer < 100.f)
 				{
 					++AttackTimer;
-					if (AttackTimer > 20.f)
+					if (AttackTimer > 30.f)
 					{
 						AEnemyBaseClass::MeleeAttack();
 						AttackTimer = 0.f;

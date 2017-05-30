@@ -41,9 +41,6 @@ public:
 
 	///////////////////////////////////////////
 	// SFX STUFF
-	// Sets up attenuation for sound.
-	UPROPERTY(EditAnywhere)
-		USoundAttenuation* DamageAtt;
 
 	// Sounds
 	UPROPERTY(EditAnywhere)
@@ -62,6 +59,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem *WaterHitFX;
 
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem* DeathPoof;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -77,11 +77,32 @@ public:
 	// sets DistanceToPlayer
 	void UpdateDistance();
 
+	// Random walk functions and variables.
+	void WalkRandomly();
+
+	void WalkRandomlyEnd();
+
+	FVector GetMyDestination();
+
+	bool GetRoaming();
+
+	bool WantsToGo;
+
+	bool Roaming;
+
+	FTimerHandle WantsToGoTimerHandle;
+
+	FTimerHandle RoamingEndTimerHandle;
+
+	UPROPERTY(EditAnywhere)
+		UNavigationSystem* EnemyNavSys;
+
 	// Overlap function.
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
 
 	void DeathCheck();
+
 	void Death();
 
 	void EnemyIsHit(float force, float duration);
@@ -108,10 +129,6 @@ public:
 	UPROPERTY (BlueprintReadWrite, Category = "Animation")
 	bool IsAttacking = false;
 
-	// VFX
-	UPROPERTY(EditAnywhere, Category = "VFX")
-		UParticleSystem* DeathPoof;
-
 	// for animation
 	UPROPERTY(BlueprintReadWrite, Category = "State")
 		int32 AIState = 1;
@@ -135,6 +152,9 @@ private:
 	// saves where player starts, used to go back "home"
 	UPROPERTY(EditAnywhere)
 		FVector MyStartLocation;
+
+	// A random place to walk to.
+	FVector RandomDestination;
 
 	UPROPERTY(EditAnywhere)
 		float MovementSpeed = 600.f;
@@ -161,9 +181,7 @@ private:
 	float RememberPain = 0;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
-	int AttackSoundDelayLength = 30;
+	int AttackSoundDelayLength = 90;
 
 	int AttackSoundDelay = 0;
-
-
 };

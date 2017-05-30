@@ -31,6 +31,9 @@ public:
 		USoundBase* BossIntro;
 
 	UPROPERTY(EditAnywhere)
+		USoundBase* BossIntroTwo;
+
+	UPROPERTY(EditAnywhere)
 		USoundBase* BossHurt;
 
 	UPROPERTY(EditAnywhere)
@@ -58,6 +61,8 @@ public:
 
 	FTimerHandle VoiceIsActiveTimerHandle;
 
+	FTimerHandle IntroPartTwoTimerHandle;
+
 	/////////////////////////////////////////
 	// SFX.
 	UPROPERTY(EditAnywhere)
@@ -67,7 +72,10 @@ public:
 		USoundBase* TeleportSound;
 
 	UPROPERTY(EditAnywhere)
-		USoundBase* FailSparkSound;
+		USoundBase* FailSparkSound; 
+
+	UPROPERTY(EditAnywhere)
+		USoundBase* WaterImpactSound;
 
 	/////////////////////////////////////////
 	// VFX.
@@ -240,6 +248,8 @@ public:
 	// Overlap function
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	void IntroPartTwo();
 
 	void ResistAttack();
 

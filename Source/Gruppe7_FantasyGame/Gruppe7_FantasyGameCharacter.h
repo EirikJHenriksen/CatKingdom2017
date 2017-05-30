@@ -163,6 +163,8 @@ public:
 
 	bool HasConfronted;
 
+	bool IntroDialogueOver;
+
 	FTimerHandle IntroTimerHandle;
 
 	///////////////////////////////////////////////////
@@ -171,7 +173,7 @@ public:
 		USoundBase* HealingSound;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
-		USoundBase* PickUpSound;
+		USoundBase* ManaCloudSound;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* AttackSound01;

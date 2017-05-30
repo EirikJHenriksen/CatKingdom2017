@@ -26,6 +26,8 @@ public:
 
 	void Spawn();
 
+	void SpawnCooldown();
+
 	/////////////////////////////////////////
 	// SFX.
 	UPROPERTY(EditAnywhere)
@@ -45,6 +47,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		USoundBase* WizardPlayerDead;
 
+	UPROPERTY(EditAnywhere)
+		USoundBase* WizardWin;
+
 	bool VoiceIsActive;
 
 	bool WizardIntroDone;
@@ -61,6 +66,8 @@ public:
 	// SPAWNING.
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<class AWizardCloud> WizardCloudBlueprint;
+
+	FTimerHandle SpawnCooldownTimerHandle;
 
 	// SPAWN LOCATION
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mana Cloud SPAWN")

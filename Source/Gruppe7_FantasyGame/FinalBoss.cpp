@@ -29,7 +29,7 @@ void AFinalBoss::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = 0.2f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
+	Health = 1.f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
 
 	isDoingSomething = false;
 
@@ -192,12 +192,15 @@ void AFinalBoss::TeleportFirstStage()
 	animIsTeleporting = true;
 	animStoppedTeleporting = false;
 
+	// This if test sets up some variables so the encounter goes from "intro" mode to the actual combat mode.
 	if (!canBeHurt)
 	{
 		canBeHurt = true;
-		VoiceIsActive = false;
 
 		GetWorld()->GetTimerManager().ClearTimer(FirstTeleportTimerHandle);
+
+		// Plays the last piece of intro dialouge.
+		GetWorldTimerManager().SetTimer(IntroPartTwoTimerHandle, this, &AFinalBoss::IntroPartTwo, 12.f, false);
 	}
 
 	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::TeleportSecondStage, 2.7f, false);
@@ -322,7 +325,6 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 	if (OtherActor->IsA(APhysAttackBox::StaticClass()))
 	{
 		OtherActor->Destroy();
-
 	}
 
 	// Magic Projectile - WATER
@@ -332,15 +334,22 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 
 		//Spiller av VFX.
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WaterHitFX, GetTransform(), true);
+		//SFX.
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WaterImpactSound, GetActorLocation(), 1.f);
 
 		if (canBeHurt && Element == 0)
 		{	
 			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
 			Health -= 0.05f;
 
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+			if (!VoiceIsActive)
+			{
+				VoiceIsActive = true;
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
+			}
 		}
-		else if (!VoiceIsActive)
+		else
 		{
 			ResistAttack();
 		}
@@ -354,9 +363,14 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
 			Health -= 0.05f;
 
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+			if (!VoiceIsActive)
+			{
+				VoiceIsActive = true;
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
+			}
 		}
-		else if (!VoiceIsActive)
+		else
 		{
 			ResistAttack();
 		}
@@ -370,9 +384,14 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
 			Health -= 0.05f;
 
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+			if (!VoiceIsActive)
+			{	
+				VoiceIsActive = true;
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
+			}
 		}
-		else if (!VoiceIsActive)
+		else
 		{
 			ResistAttack();
 		}
@@ -381,17 +400,29 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 	DeathCheck();
 }
 
+void AFinalBoss::IntroPartTwo()
+{	
+	// Previous part is within the TeleportFirstStage() function.
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossIntroTwo, GetActorLocation(), 1.f);
+	GetWorld()->GetTimerManager().ClearTimer(IntroPartTwoTimerHandle);
+	VoiceIsActive = false;
+}
+
 void AFinalBoss::ResistAttack()
 {	
-	VoiceIsActive = true;
-
 	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Tar ikke damage!"));
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossLaugh, GetActorLocation(), 1.f);
+	//SFX.
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FailSparkSound, GetActorLocation(), 1.f);
-
+	//VFX.
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFailFX, GetTransform(), true);
 
-	GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 3.f, false);
+	if (!VoiceIsActive)
+	{	
+		VoiceIsActive = true;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossLaugh, GetActorLocation(), 1.f);
+
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 3.f, false);
+	}
 }
 
 void AFinalBoss::IsNowDead()

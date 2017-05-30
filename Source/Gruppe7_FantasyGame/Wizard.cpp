@@ -21,7 +21,7 @@ void AWizard::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	VoiceIsActive = true;
+	VoiceIsActive = false;
 
 	cloudIsActive = false;
 }
@@ -33,6 +33,7 @@ void AWizard::Tick(float DeltaTime)
 	
 	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossFightActive() && !WizardIntroDone)
 	{	
+		VoiceIsActive = true;
 		WizardIntroDone = true;
 		GetWorldTimerManager().SetTimer(IntroTimerHandle, this, &AWizard::IntroDialogue, 7.f, false);
 	}
@@ -54,20 +55,26 @@ void AWizard::IntroDialogue()
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardIntro, GetActorLocation());
 	GetWorld()->GetTimerManager().ClearTimer(IntroTimerHandle);
 
-	VoiceIsActive = false;
+	GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 7.f, false);
 }
 
 void AWizard::Spawn()
 {
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("MANA IS SPAWNED!"));
-
 	GetWorld()->SpawnActor<AWizardCloud>(WizardCloudBlueprint, GetActorLocation() + GetActorForwardVector() * 200.f, GetActorRotation());
 	
-	if (!VoiceIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead() && !Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
-	{
+	if (!VoiceIsActive)
+	{	
+		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardNotifySpawn, GetActorLocation());
+		GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 3.f, false);
 	}
 
+	// Sets cooldown, before it can be spawned again.
+	GetWorldTimerManager().SetTimer(SpawnCooldownTimerHandle, this, &AWizard::SpawnCooldown, 15.f, false);
+}
+
+void AWizard::SpawnCooldown()
+{
 	cloudIsActive = false;
 }
 
@@ -78,20 +85,25 @@ void AWizard::DialogueCheck()
 		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardPlayerDead, GetActorLocation(), 1.f, 1.f);
 	}
-	else if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossAttack() && !VoiceIsActive)
+	
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossAttack() && !VoiceIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
 	{	
 		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardWarning, GetActorLocation(), 1.f, 1.f);
+		GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 2.f, false);
 	}
 
-	GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 2.f, false);
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead() && !VoiceIsActive)
+	{
+		VoiceIsActive = true;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardWin, GetActorLocation(), 1.f, 1.f);
+	}
 }
 
 void AWizard::VoiceIsFinished()
-{
-	GetWorld()->GetTimerManager().ClearTimer(VoiceFinishedTimerHandle);
-
+{	
 	VoiceIsActive = false;
+	GetWorld()->GetTimerManager().ClearTimer(VoiceFinishedTimerHandle);
 }
 
 // Called to bind functionality to input

@@ -204,15 +204,16 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 	}
 
 	// Plays the boss encounter dialogue.
-	if (Cast<UFantasyGameInstance>(GetGameInstance())->BossFightActive && !VoiceIsActive)
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->BossFightActive && !VoiceIsActive && !IntroDialogueOver)
 	{
 		VoiceIsActive = true;
+		IntroDialogueOver = true;
 
 		//Legg inn et delay så Fay, Night-Night og Wizard sier ting i rett rekkefølge.
 
-		GetWorldTimerManager().SetTimer(IntroTimerHandle, this, &AGruppe7_FantasyGameCharacter::IntroDialogue, 10.f, false);
+		GetWorldTimerManager().SetTimer(IntroTimerHandle, this, &AGruppe7_FantasyGameCharacter::IntroDialogue, 15.f, false);
 
-		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 3.f, false);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 20.f, false);
 	}
 
 	// Blueprint sets PlayerRespawn to true, this runs and respawns the player.
@@ -224,7 +225,9 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 }
 
 void AGruppe7_FantasyGameCharacter::IntroDialogue()
-{
+{	
+	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("FEY INTRO DIALOGUE!!!"));
+
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossEncounterVoice, GetActorLocation(), 1.f, 1.f);
 	GetWorld()->GetTimerManager().ClearTimer(IntroTimerHandle);
 }
@@ -383,9 +386,6 @@ void AGruppe7_FantasyGameCharacter::MagiProjectile()
 			MagicDelay = true;
 
 			GetWorld()->SpawnActor<AMagicProjectile>(MagicProjectileBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
-
-			//Spiller skytelyd.
-			//UGameplayStatics::PlaySound2D(GetWorld(), CastSound, 1.f, 1.f, 0.f);
 
 			Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 		}
@@ -691,7 +691,7 @@ void AGruppe7_FantasyGameCharacter::DeathCheck()
 		// DEBUG - Erstatt med en effekt?
 		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Purple, TEXT("YOU DIED! LOL n00b!"));
 
-		GetWorldTimerManager().SetTimer(PlayerDeadTimerHandle, this, &AGruppe7_FantasyGameCharacter::PlayerDead, 2.5f, false);
+		GetWorldTimerManager().SetTimer(PlayerDeadTimerHandle, this, &AGruppe7_FantasyGameCharacter::PlayerDead, 4.f, false);
 	}
 }
 
@@ -737,6 +737,9 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 			OtherActor->SetActorLocation(FVector(0.f, 0.f, -200.f));
 
 			AGruppe7_FantasyGameCharacter::ManaPotion(1.f);
+
+			//Spiller av SFX.
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), ManaCloudSound, GetActorLocation(), 1.f, 1.f);
 		}
 
 		if (OtherActor->IsA(AManaPotion::StaticClass()) && Mana < 1.f)
