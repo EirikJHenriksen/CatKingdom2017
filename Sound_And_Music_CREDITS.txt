@@ -1,3 +1,5 @@
+///////////////////////////////////////////////////////////////////////////
+
 ----------------------------------------------
 All Music from: http://incompetech.com
 ----------------------------------------------
@@ -24,34 +26,35 @@ http://creativecommons.org/licenses/by/3.0/
 
 ///////////////////////////////////////////////////////////////////////////
 
+(* Has been edited)
 -----------------------------------
 All SFX from: http://soundbible.com
 -----------------------------------
-Title: Woosh || HAS BEEN EDITED!
+Title: Woosh *
 Recorded by Mark DiAngelo 
 License: Attribution 3.0
 -----------------------------------
-Title: Jab || HAS BEEN EDITED!
+Title: Jab *
 Recorded by Mike Koenig
 License: Attribution 3.0
 -----------------------------------
-Title: Rainforest Ambience || HAS BEEN EDITED!
+Title: Rainforest Ambience *
 Recorded by GlorySunz
 License: Public Domain
 -----------------------------------
-Title: Water || HAS BEEN EDITED!
+Title: Water *
 Recorded by Lisa Redfern
 License: Public Domain
 -----------------------------------
-Title: Splash Rock In Lake || HAS BEEN EDITED!
+Title: Splash Rock In Lake *
 Recorded by Ploor
 License: Public Domain
 -----------------------------------
-Title: Large Fireball || HAS BEEN EDITED!
+Title: Large Fireball *
 Recorded by Mike Koenig
 License: Attribution 3.0
 -----------------------------------
-Title: Creepy Background || HAS BEEN EDITED!
+Title: Creepy Background *
 Recorded by Daniel Simion
 License: Attribution 3.0
 -----------------------------------
@@ -59,15 +62,15 @@ Title: Large Door Slam
 Recorded by stephan
 License: Public Domain
 -----------------------------------
-Title: Water Drops || HAS BEEN EDITED!
+Title: Water Drops *
 Recorded by Daniel Simion
 License: Attribution 3.0
 -----------------------------------
-Title: Single Water Droplet || HAS BEEN EDITED!
+Title: Single Water Droplet *
 Recorded by Mike Koenig
 License: Attribution 3.0
 -----------------------------------
-Title: Basement || HAS BEEN EDITED!
+Title: Basement *
 Recorded by Mike Koenig
 License: Attribution 3.0
 -----------------------------------
@@ -75,11 +78,11 @@ Title: Pitch Baseball
 Recorded by Mike Koenig
 License: Attribution 3.0
 -----------------------------------
-Title: Pop Cork || HAS BEEN EDITED!
+Title: Pop Cork *
 Recorded by Mike Koenig
 License: Attribution 3.0
 -----------------------------------
-Title: Fishtank Bubbles 2 || HAS BEEN EDITED!
+Title: Fishtank Bubbles 2 *
 Recorded by amanda
 License: Attribution 3.0
 -----------------------------------
@@ -87,7 +90,9 @@ Title: Fizzle
 Recorded by Mike Koenig
 License: Attribution 3.0
 -----------------------------------
-Title: Pat || HAS BEEN EDITED!
+Title: Pat *
 Recorded by Mike Koenig
 License: Attribution 3.0
 -----------------------------------
+
+///////////////////////////////////////////////////////////////////////////
