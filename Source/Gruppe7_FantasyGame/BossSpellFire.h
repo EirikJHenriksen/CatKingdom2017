@@ -33,6 +33,11 @@ public:
 
 	FVector VelocityVector;
 
+	/////////////////////////////////////
+	// VFX.
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem* ImpactMagicFX;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

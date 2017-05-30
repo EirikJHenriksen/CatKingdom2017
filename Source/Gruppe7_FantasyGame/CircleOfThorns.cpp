@@ -17,7 +17,6 @@ ACircleOfThorns::ACircleOfThorns()
 	RootComponent = RootCollision;
 	RootCollision->bGenerateOverlapEvents = true;
 	RootCollision->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
-	//RootCollision->;
 
 	RootCollision->OnComponentHit.AddDynamic(this, &ACircleOfThorns::OnHit);
 }
@@ -67,7 +66,6 @@ void ACircleOfThorns::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherAc
 {
 	if (OtherActor->IsA(ABossSpellFire::StaticClass()))
 	{
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Purple, TEXT("IMPACT!"));
 		OtherActor->Destroy();
 	}
 }

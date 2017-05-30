@@ -15,45 +15,45 @@ AEnemy_AI_Controller::AEnemy_AI_Controller()
 // Called every frame
 void AEnemy_AI_Controller::Tick(float DeltaTime)
 {
-Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime);
 
+	// check if the character is dead
+	if (Cast<AEnemyBaseClass>(GetCharacter())->IsDead)
+	{
+		State = StateEnum::DEAD;
+	}
 
-
-// check if the character is dead
-if (Cast<AEnemyBaseClass>(GetCharacter())->IsDead)
-{
-	State = StateEnum::DEAD;
-}
-
-// check if the player is dead, in which case celebrate by standing idle
-if (Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead())
-{
-	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 1;
-	IdleState();
-}else{ 
-// Each tick run the function fitting current state
-switch (State)
-{
-case StateEnum::IDLE:
-	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 1;
-	IdleState();
-	break;
-case StateEnum::FOLLOW:
-	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 2;
-	ApproachState();
-	break;
-case StateEnum::RETURN:
-	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 2;
-	ReturnState();
-	break;
-case StateEnum::DEAD:
-	Cast<AEnemyBaseClass>(GetCharacter())->AIState = 4;
-	DeadState();
-	break;
-default:
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("Switch not working in AIController"));
-}
-}
+	// check if the player is dead, in which case celebrate by standing idle
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead())
+	{
+		Cast<AEnemyBaseClass>(GetCharacter())->AIState = 1;
+		IdleState();
+	}
+	else 
+	{
+		// Each tick run the function fitting current state
+		switch (State)
+		{
+		case StateEnum::IDLE:
+			Cast<AEnemyBaseClass>(GetCharacter())->AIState = 1;
+			IdleState();
+			break;
+		case StateEnum::FOLLOW:
+			Cast<AEnemyBaseClass>(GetCharacter())->AIState = 2;
+			ApproachState();
+			break;
+		case StateEnum::RETURN:
+			Cast<AEnemyBaseClass>(GetCharacter())->AIState = 2;
+			ReturnState();
+			break;
+		case StateEnum::DEAD:
+			Cast<AEnemyBaseClass>(GetCharacter())->AIState = 4;
+			DeadState();
+			break;
+		default:
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("Switch not working in AIController"));
+		}
+	}
 }
 
 // FUNCTIONS FOR STATES START HERE

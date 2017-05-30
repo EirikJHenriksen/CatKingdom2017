@@ -33,11 +33,16 @@ public:
 		class UDecalComponent* CursorToWorld;
 
 	///////////////////////////////////////////////////////////////////////////
+	// Camera FX.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Shake")
+		TSubclassOf<class UCameraShake> CameraShake;
+
+	///////////////////////////////////////////////////////////////////////////
 	// Animations.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
 		bool AnimPlayerIsIdle;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations") //Fjern hvis den ikke kan brukes.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
 		bool AnimIsMoving;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Animations")
@@ -199,6 +204,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "SFX")
 		USoundBase* SpellCastSound;
 
+	///////////////////////////////////////////
 	// VFX.
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem* HealthPickUpFX;

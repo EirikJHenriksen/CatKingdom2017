@@ -57,7 +57,6 @@ void AMagicProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherA
 {	
 	if (OtherActor->IsA(ABossSpellFire::StaticClass()))
 	{
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Purple, TEXT("IMPACT!"));
 		OtherActor->Destroy();
 	}
 
@@ -73,7 +72,6 @@ void AMagicProjectile::FireInDirection(const FVector& ShootDirection)
 void AMagicProjectile::Destroy()
 {
 	Super::Destroy();
-
 
 	//Spiller av SFX.
 	float RandomValue = FMath::RandRange(0.8f, 1.2f);

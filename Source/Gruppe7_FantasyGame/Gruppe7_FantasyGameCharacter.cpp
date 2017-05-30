@@ -60,12 +60,6 @@ AGruppe7_FantasyGameCharacter::AGruppe7_FantasyGameCharacter()
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>("CursorToWorld");
 	CursorToWorld->SetupAttachment(RootComponent);
-	//static ConstructorHelpers::FObjectFinder<UMaterial> DecalMaterialAsset(TEXT("Material'/Game/Materials/Pointers/PawDecal_MAT.PawDecal_MAT'"));
-	//
-	//if (DecalMaterialAsset.Succeeded())
-	//{
-	//	CursorToWorld->SetDecalMaterial(DecalMaterialAsset.Object);
-	//}
 	
 	CursorToWorld->DecalSize = FVector(32.0f, 64.0f, 64.0f);
 	CursorToWorld->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f).Quaternion());
@@ -74,17 +68,12 @@ AGruppe7_FantasyGameCharacter::AGruppe7_FantasyGameCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
 	///////////////////////////////////////
 	// VOICE
-
 	VoiceIsActive = false;
 
 	///////////////////////////////////////
 	// ANIMATIONS
-
 	AnimPlayerIsIdle = true;
 }
 
@@ -95,8 +84,6 @@ void AGruppe7_FantasyGameCharacter::SetupPlayerInputComponent(class UInputCompon
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Magic and physical attacks.
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AGruppe7_FantasyGameCharacter::PhysAttack);
@@ -122,7 +109,6 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 
 	// Updates GameInstance with the players location and velocity.
 	Cast<UFantasyGameInstance>(GetGameInstance())->SetPlayerLocation(GetActorLocation());
-	//Cast<UFantasyGameInstance>(GetGameInstance())->SetPlayerVelocity(this->GetVelocity());
 
 	// Synchronizes Player variables with game instance.
 	Health = Cast<UFantasyGameInstance>(GetGameInstance())->GetHealth();
@@ -152,6 +138,7 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 		break;
 	}
 
+	////////////////////////
 	// TIMERS.
 	if (SpellIsContinuous)
 	{	
@@ -163,9 +150,10 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 		}
 	}
 
-	// Keeps track of delays.
 	DelayUpdater();
-
+	
+	/////////////////////////////////////////////
+	// Updates the cursors position in the world
 	FHitResult Hit;
 	bool HitResult = false;
 
@@ -209,8 +197,6 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 		VoiceIsActive = true;
 		IntroDialogueOver = true;
 
-		//Legg inn et delay så Fay, Night-Night og Wizard sier ting i rett rekkefølge.
-
 		GetWorldTimerManager().SetTimer(IntroTimerHandle, this, &AGruppe7_FantasyGameCharacter::IntroDialogue, 15.f, false);
 
 		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AGruppe7_FantasyGameCharacter::VoiceIsFinished, 20.f, false);
@@ -226,8 +212,6 @@ void AGruppe7_FantasyGameCharacter::Tick(float DeltaSeconds)
 
 void AGruppe7_FantasyGameCharacter::IntroDialogue()
 {	
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("FEY INTRO DIALOGUE!!!"));
-
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossEncounterVoice, GetActorLocation(), 1.f, 1.f);
 	GetWorld()->GetTimerManager().ClearTimer(IntroTimerHandle);
 }
@@ -245,7 +229,6 @@ void AGruppe7_FantasyGameCharacter::SpellSwapDown()
 void AGruppe7_FantasyGameCharacter::SpellSwap(bool SwapUp)
 {	
 	// Function that changes the active spell.
-
 	if (SwapUp == true)
 	{
 		Cast<UFantasyGameInstance>(GetGameInstance())->SwapUp();
@@ -253,34 +236,6 @@ void AGruppe7_FantasyGameCharacter::SpellSwap(bool SwapUp)
 	if (SwapUp == false)
 	{
 		Cast<UFantasyGameInstance>(GetGameInstance())->SwapDown();
-	}
-	
-	// DEBUG - Replace with some kind of effect?
-	switch (SpellSelect)
-	{
-	default:
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("ERROR: SPELL SELECT NOT FUNCTIONING!!!"));
-		break;
-	case 0:
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Magic Projectile Selected"));
-		break;
-	case 1:
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Orange, TEXT("Cone of Fire Selected"));
-		break;
-	case 2:
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Orange, TEXT("Circle of Fire Selected"));
-		break;
-	case 3:
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Healing Magic Selected"));
-		break;
-	case 4:
-		//SpellSelect = 0;
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Magic Projectile Selected"));
-		break;
-	case -1:
-		//SpellSelect = 3;
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Circle of Thorns Selected"));
-		break;
 	}
 }
 
@@ -335,7 +290,7 @@ void AGruppe7_FantasyGameCharacter::MoveRight(float Value)
 
 void AGruppe7_FantasyGameCharacter::PhysAttack()
 {	
-	// Legg til delay mellom angrep så de ikke kan spammes.
+	// Sjekker om delayene er aktive.
 	if (!AttackDelay && !AnimPlayerIsDying && !MagicDelay)
 	{
 		UWorld* World = GetWorld();
@@ -358,7 +313,6 @@ void AGruppe7_FantasyGameCharacter::PhysAttackEffect()
 {
 	GetWorld()->SpawnActor<APhysAttackBox>(PhysAttackBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
 	GetWorld()->SpawnActor<AKnockbackSphere>(KnockbackBlueprint, GetActorLocation(), GetActorRotation());
-
 	GetWorld()->GetTimerManager().ClearTimer(AttackEffectTimerHandle);
 }
 
@@ -366,7 +320,6 @@ void AGruppe7_FantasyGameCharacter::PhysAttackOver()
 {
 	AnimIsAttacking = false;
 	AnimStopAttacking = true;
-
 	GetWorld()->GetTimerManager().ClearTimer(AnimPlayerAttackTimerHandle);
 }
 
@@ -377,7 +330,7 @@ void AGruppe7_FantasyGameCharacter::MagiProjectile()
 		//Spiller av SFX.
 		MagiSound();
 
-		//Set the required mana for casting this spell.
+		//Sets the required mana for casting this spell.
 		float ManaRequirement{ 0.05f };
 
 		UWorld* World = GetWorld();
@@ -403,7 +356,7 @@ void AGruppe7_FantasyGameCharacter::MagiFireCone()
 	SpellIsContinuous = true;
 	SpellDelay = 30.f;
 
-	//Spiller av SFX. - fiks så det ikke looper på en rar måte
+	//Spiller av SFX.
 	MagiSound();
 
 	//Set the required mana for casting this spell.
@@ -413,10 +366,6 @@ void AGruppe7_FantasyGameCharacter::MagiFireCone()
 	if (World && (Mana >= ManaRequirement))
 	{
 		GetWorld()->SpawnActor<AConeOfFire>(MagicFireConeBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
-
-		//Spiller skytelyd.
-		//UGameplayStatics::PlaySound2D(GetWorld(), CastSound, 1.f, 1.f, 0.f);
-
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
 	else if (Mana < ManaRequirement && !VoiceIsActive)
@@ -430,19 +379,20 @@ void AGruppe7_FantasyGameCharacter::MagiFireCone()
 void AGruppe7_FantasyGameCharacter::MagiThornCircle()
 {
 	//Set the required mana for casting this spell.
-	float ManaRequirement{ 0.1f };
+	float ManaRequirement{ 0.15f };
 	
 	//Spiller av SFX.
 	MagiSound();
 
-	//Spiller av VFX.
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EarthEffect, FTransform(GetActorRotation().Quaternion(), (FVector(GetActorLocation().X, GetActorLocation().Y,(GetActorLocation().Z - 225.f))), FVector(1.f, 1.f, 1.f)), true);
-
 	UWorld* World = GetWorld();
 	if (World && (Mana >= ManaRequirement))
 	{	
-		GetWorld()->SpawnActor<ACircleOfThorns>(MagicThornCircleBlueprint, GetActorLocation() + GetActorForwardVector() * 1.f, GetActorRotation());
+		//Spiller av VFX.
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EarthEffect, FTransform(GetActorRotation().Quaternion(), (FVector(GetActorLocation().X, GetActorLocation().Y, (GetActorLocation().Z - 225.f))), FVector(1.f, 1.f, 1.f)), true);
+		// Camera shake.
+		Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
+		GetWorld()->SpawnActor<ACircleOfThorns>(MagicThornCircleBlueprint, GetActorLocation() + GetActorForwardVector() * 1.f, GetActorRotation());
 		Cast<UFantasyGameInstance>(GetGameInstance())->DrainMana(ManaRequirement);
 	}
 	else if (Mana < ManaRequirement && !VoiceIsActive)
@@ -459,8 +409,8 @@ void AGruppe7_FantasyGameCharacter::MagiHealing()
 	SpellDelay = 15.f;
 
 	//Set the required mana for casting this spell.
-	float ManaRequirement{ 0.15f };
-	float HealthRestoration{ 0.05f };
+	float ManaRequirement{ 0.12f };
+	float HealthRestoration{ 0.08f };
 
 	if (Health != 1.f && Mana >= 0.f)
 	{
@@ -551,12 +501,8 @@ void AGruppe7_FantasyGameCharacter::HealthPotion(float HealthRestore)
 void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
 {	
 	// Power-up som booster movement speed.
-
 	// Timer system.
 	GetWorldTimerManager().SetTimer(SpeedPowerUpTimerHandle, this, &AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver, SpeedPowerUpDuration, false);
-
-	// DEBUG.
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("Power-up activated!"));
 
 	// Prevents multiple power-ups at once.
 	PlayerHasPowerup = true;
@@ -569,9 +515,6 @@ void AGruppe7_FantasyGameCharacter::PowerUp_Speed()
 
 void AGruppe7_FantasyGameCharacter::PowerUp_SpeedOver()
 {
-	// DEBUG.
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("Power-up is over!"));
-
 	PlayerHasPowerup = false;
 
 	PlayerMovementSpeed = 600.f;
@@ -688,8 +631,8 @@ void AGruppe7_FantasyGameCharacter::DeathCheck()
 
 		Cast<UFantasyGameInstance>(GetGameInstance())->SetPlayerIsDead(true);
 
-		// DEBUG - Erstatt med en effekt?
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Purple, TEXT("YOU DIED! LOL n00b!"));
+		// Camera shake.
+		Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
 		GetWorldTimerManager().SetTimer(PlayerDeadTimerHandle, this, &AGruppe7_FantasyGameCharacter::PlayerDead, 4.f, false);
 	}
@@ -721,6 +664,9 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 		if (OtherActor->IsA(ABossSpellFire::StaticClass()))
 		{
 			OtherActor->Destroy();
+
+			// Camera shake.
+			Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
 			Cast<UFantasyGameInstance>(GetGameInstance())->DrainHealth(DamageFromBoss);
 
@@ -781,12 +727,8 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 
 				AGruppe7_FantasyGameCharacter::PowerUp_Speed();
 			}
-			else
-			{
-				// DEBUG - Erstatt med en effekt?
-				//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("A Power-up is already active!"));
-			}
 		}
+
 		DeathCheck();
 	}
 }

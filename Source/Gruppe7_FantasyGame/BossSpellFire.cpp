@@ -16,7 +16,6 @@ ABossSpellFire::ABossSpellFire()
 
 	// Use a sphere as a simple collision representation.
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	//CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("MProjectile"));
 	CollisionComponent->SetWorldScale3D(FVector(2.f, 2.f, 2.f));
 
 	CollisionComponent->OnComponentHit.AddDynamic(this, &ABossSpellFire::OnHit);
@@ -28,9 +27,7 @@ ABossSpellFire::ABossSpellFire()
 	ProjectileMovementComponent->MaxSpeed = 1000.0f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
-	//ProjectileMovementComponent->Bounciness = 1.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
-	//ProjectileMovementComponent->bIsHomingProjectile = true;
 
 	ProjectileMovementComponent->OnProjectileStop.AddDynamic(this, &ABossSpellFire::OnStop);
 }
@@ -46,7 +43,7 @@ void ABossSpellFire::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Keeps track of the players location. IMPORTANT THAT IT STAYS IN TICK FUNCTION.
+	// Keeps track of the players location.
 	CurrentPlayerLocation = Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerLocation();
 
 	SetActorRotation(TargetVector.Rotation() + FRotator(180.f, 0.f, 0.f));
@@ -89,6 +86,5 @@ void ABossSpellFire::Destroy()
 	Super::Destroy();
 
 	//Spiller av VFX.
-	//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactMagicFX, GetTransform(), true);
-	//Lyd effekter?
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactMagicFX, GetTransform(), true);
 }

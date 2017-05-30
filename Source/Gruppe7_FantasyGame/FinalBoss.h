@@ -25,6 +25,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	///////////////////////////////////////////////////////////////////////////
+	// Camera FX.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Shake")
+		TSubclassOf<class UCameraShake> CameraShake;
+
 	/////////////////////////////////////////
 	// VOICE.
 	UPROPERTY(EditAnywhere)
@@ -89,9 +94,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem* TeleportFX;
 
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		UParticleSystem* SummonFX;
+
 	/////////////////////////////////////////
 	// Stats.
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		float Health;
 

@@ -38,9 +38,7 @@ AEnemyBaseClass::AEnemyBaseClass()
 
 	// Sets various parameters
 	SlowdownActive = false;
-	
 	Roaming = false;
-	
 	WantsToGo = true;
 }
 
@@ -79,7 +77,6 @@ void AEnemyBaseClass::Tick(float DeltaTime)
 
 	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
 	{	
-		// Oppdater dette nå animasjoner er implementert.
 		HealthPoints = 0.f;
 		DeathCheck();
 	}
@@ -100,7 +97,8 @@ bool AEnemyBaseClass::GetInPain()
 	{
 		return true;
 	}
-	else {
+	else
+	{
 		return false;
 	}
 }
@@ -127,7 +125,6 @@ void AEnemyBaseClass::MeleeAttack()
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSound, GetActorLocation(), 1.f, 1.f);
 		}
 	}
-	
 }
 
 // gets the distance to player
@@ -201,15 +198,15 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		switch (Element)
 		{
 		case ElementsEnum::FIRE:
-			// weak
+			// weakness
 			HealthPoints -= DamageMyWeakness;
 			break;
 		case ElementsEnum::WATER:
-			// ok
+			// same element
 			HealthPoints -= DamageMyEqual;
 			break;
 		case ElementsEnum::NATURE:
-			// heal?
+			// resistance
 			HealthPoints -= DamageLeastEffective;
 			break;
 		default:
@@ -230,15 +227,15 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		switch (Element)
 		{
 		case ElementsEnum::WATER:
-			// weak
+			// weakness
 			HealthPoints -= DamageMyWeakness;
 			break;
 		case ElementsEnum::NATURE:
-			// ok
+			// same element
 			HealthPoints -= DamageMyEqual;
 			break;
 		case ElementsEnum::FIRE:
-			// heal?
+			// resistance
 			HealthPoints -= DamageLeastEffective;
 			break;
 		default:
@@ -254,15 +251,15 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		switch (Element)
 		{
 		case ElementsEnum::NATURE:
-			// weak
+			// weakness
 			HealthPoints -= DamageMyWeakness;
 			break;
 		case ElementsEnum::FIRE:
-			// ok
+			// same element
 			HealthPoints -= DamageMyEqual;
 			break;
 		case ElementsEnum::WATER:
-			// heal?
+			// resistance
 			HealthPoints -= DamageLeastEffective;
 			break;
 		default:
@@ -312,7 +309,6 @@ void AEnemyBaseClass::Death()
 		GetWorld()->SpawnActor<ACrystalPawn>(CrystalBlueprint, GetActorLocation() + FVector(0.f, -30.f, 0.f), GetActorRotation());
 	}
 
-
 	// might spawn potion
 	if (FMath::RandRange(0, 1) == 0)
 	{
@@ -358,7 +354,6 @@ bool AEnemyBaseClass::CanSeePlayer()
 {
 	if (GetWorld()->GetFirstPlayerController()->GetCharacter())
 	{
-
 		// Updates DistanceToPlayer
 		UpdateDistance();
 
@@ -385,7 +380,7 @@ bool AEnemyBaseClass::CanSeePlayer()
 					SetActorRotation(FRotator(0.f, (CurrentPlayerLocation - GetActorLocation()).Rotation().Yaw, 0.f));
 
 					++AttackTimer;
-					if (AttackTimer > 30.f)
+					if (AttackTimer > 20.f)
 					{
 						AEnemyBaseClass::MeleeAttack();
 						AttackTimer = 0.f;

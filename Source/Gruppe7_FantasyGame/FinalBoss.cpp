@@ -29,7 +29,7 @@ void AFinalBoss::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = 1.f; // SETT DENNE VERDIEN TILBAKE TIL 1.f
+	Health = 1.f;
 
 	isDoingSomething = false;
 
@@ -67,7 +67,7 @@ void AFinalBoss::Tick(float DeltaTime)
 	// Gets variable from gameInstance class.
 	fightInProgress = Cast<UFantasyGameInstance>(GetGameInstance())->GetBossFightActive();
 
-	// Keeps track of the players location. IMPORTANT THAT IT STAYS IN TICK FUNCTION.
+	// Keeps track of the players location.
 	CurrentPlayerLocation = Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerLocation();
 
 	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerIsDead() && !BossWinVoicePlayed)
@@ -111,6 +111,7 @@ void AFinalBoss::Tick(float DeltaTime)
 		{	
 			isDoingSomething = true;
 			
+			// Makes the boss take an action.
 			DoSomething();
 		}
 	}
@@ -123,29 +124,21 @@ void AFinalBoss::DoSomething()
 	default:
 		break;
 	case 0:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("TELEPORT - ACTIVE"));
-
 		RandomActionTime = FMath::RandRange(RandomMin, RandomMax);
 
 		GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &AFinalBoss::TeleportFirstStage, RandomActionTime, false);
 		break;
 	case 1:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SUMMON - ACTIVE"));
-
 		RandomActionTime = FMath::RandRange(RandomMin, RandomMax);
 
 		GetWorldTimerManager().SetTimer(SummonTimerHandle, this, &AFinalBoss::SummonFirstStage, RandomActionTime, false);
 		break;
 	case 2:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("ATTACK - ACTIVE"));
-
 		RandomActionTime = FMath::RandRange(RandomMin, RandomMax);
 
 		GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::AttackFirstStage, RandomActionTime, false);
 		break;
 	case 3:
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("ATTACK - ACTIVE"));
-
 		RandomActionTime = FMath::RandRange(RandomMin, RandomMax);
 
 		GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AFinalBoss::AttackFirstStage, RandomActionTime, false);
@@ -208,8 +201,6 @@ void AFinalBoss::TeleportFirstStage()
 
 void AFinalBoss::TeleportSecondStage()
 {	
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("TELEPORTER - FUNCTION IN PROGRESS"));
-
 	//SFX.
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, GetActorLocation(), 1.f);
 	//VFX.
@@ -252,8 +243,6 @@ void AFinalBoss::AttackFirstStage()
 	animIsAttacking = true;
 	animStoppedAttacking = false;
 
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("ATTACK - FIRST STAGE!!"));
-
 	// Notifies game instance of attack so the wizard can warn the player.
 	Cast<UFantasyGameInstance>(GetGameInstance())->SetBossAttack(true);
 
@@ -267,7 +256,6 @@ void AFinalBoss::AttackSecondStage()
 	UWorld* World = GetWorld();
 	if (World && !PlayerIsDead)
 	{
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("NIGHT NIGHT ATTACK"));
 		GetWorld()->SpawnActor<ABossSpellFire>(SpellFireBlueprint, GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation());
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), MagicAttackSound, GetActorLocation());
 	}
@@ -287,8 +275,6 @@ void AFinalBoss::SummonFirstStage()
 	animIsSummoning = true;
 	animStoppedSummoning = false;
 
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SUMMON - FIRST STAGE!!"));
-
 	GetWorld()->GetTimerManager().ClearTimer(SummonTimerHandle);
 
 	GetWorldTimerManager().SetTimer(AnimSummonTimerHandle, this, &AFinalBoss::SummonSecondStage, 1.5f, false);
@@ -302,12 +288,18 @@ void AFinalBoss::SummonSecondStage()
 		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("SOMETHING WENT WRONG WITH SUMMONS! FUNCTION: SummonEnemy()"));
 		break;
 	case 0:
+		//Spiller av VFX.
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SummonFX, FTransform(GetActorRotation().Quaternion(), FVector(SpawnX, SpawnY, SpawnZ), FVector(1.f, 1.f, 1.f)), true);
 		GetWorld()->SpawnActor<AEnemyBaseClass>(FireEnemyBlueprint, FVector(SpawnX, SpawnY, SpawnZ), GetActorRotation());
 		break;
 	case 1:
+		//Spiller av VFX.
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SummonFX, FTransform(GetActorRotation().Quaternion(), FVector(SpawnX, SpawnY, SpawnZ), FVector(1.f, 1.f, 1.f)), true);
 		GetWorld()->SpawnActor<AEnemyBaseClass>(WaterEnemyBlueprint, FVector(SpawnX, SpawnY, SpawnZ), GetActorRotation());
 		break;
 	case 2:
+		//Spiller av VFX.
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SummonFX, FTransform(GetActorRotation().Quaternion(), FVector(SpawnX, SpawnY, SpawnZ), FVector(1.f, 1.f, 1.f)), true);
 		GetWorld()->SpawnActor<AEnemyBaseClass>(NatureEnemyBlueprint, FVector(SpawnX, SpawnY, SpawnZ), GetActorRotation());
 		break;
 	}
@@ -321,10 +313,11 @@ void AFinalBoss::SummonSecondStage()
 
 void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	// Physic attack
+	// Physical attack
 	if (OtherActor->IsA(APhysAttackBox::StaticClass()))
 	{
 		OtherActor->Destroy();
+		ResistAttack();
 	}
 
 	// Magic Projectile - WATER
@@ -339,8 +332,10 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 
 		if (canBeHurt && Element == 0)
 		{	
-			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
-			Health -= 0.05f;
+			Health -= 0.04f;
+
+			// Camera shake.
+			Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
 			if (!VoiceIsActive)
 			{
@@ -360,8 +355,10 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 	{
 		if (canBeHurt && Element == 1)
 		{
-			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
-			Health -= 0.05f;
+			Health -= 0.04f;
+
+			// Camera shake.
+			Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
 			if (!VoiceIsActive)
 			{
@@ -381,8 +378,10 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 	{
 		if (canBeHurt && Element == 2)
 		{
-			//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Yellow, TEXT("Tar damage!"));
-			Health -= 0.05f;
+			Health -= 0.04f;
+
+			// Camera shake.
+			Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
 			if (!VoiceIsActive)
 			{	
@@ -411,7 +410,6 @@ void AFinalBoss::IntroPartTwo()
 
 void AFinalBoss::ResistAttack()
 {	
-	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Tar ikke damage!"));
 	//SFX.
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FailSparkSound, GetActorLocation(), 1.f);
 	//VFX.
@@ -440,8 +438,6 @@ void AFinalBoss::DeathCheck()
 {
 	if (Health <= 0.f && !IsDying)
 	{	
-		//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("Night-Night døde!"));
-
 		animStoppedAttacking = true;
 		animIsAttacking = false;
 
