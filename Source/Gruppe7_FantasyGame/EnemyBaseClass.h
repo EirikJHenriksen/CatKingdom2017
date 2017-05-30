@@ -40,6 +40,23 @@ public:
 		TSubclassOf<class ACrystalPawn> CrystalBlueprint;
 
 	///////////////////////////////////////////
+	// Roaming values.
+	UPROPERTY(EditAnywhere, Category = "NPC - Roaming - WALKING")
+		float WalkRadius = 500.f;
+
+	UPROPERTY(EditAnywhere, Category = "NPC - Roaming - WAITING")
+		float WantsToGoMin = 0.f; 
+
+	UPROPERTY(EditAnywhere, Category = "NPC - Roaming - WAITING")
+		float WantsToGoMax = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "NPC - Roaming - WALKING")
+		float RoamingMin = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "NPC - Roaming - WALKING")
+		float RoamingMax = 0.f;
+
+	///////////////////////////////////////////
 	// SFX STUFF
 
 	// Sounds
@@ -93,6 +110,8 @@ public:
 	FTimerHandle WantsToGoTimerHandle;
 
 	FTimerHandle RoamingEndTimerHandle;
+
+	bool SlowdownActive;
 
 	UPROPERTY(EditAnywhere)
 		UNavigationSystem* EnemyNavSys;

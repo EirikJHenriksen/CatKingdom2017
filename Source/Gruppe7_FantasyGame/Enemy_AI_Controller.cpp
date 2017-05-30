@@ -60,7 +60,9 @@ default:
 
 ///// IDLE /////
 void AEnemy_AI_Controller::IdleState()
-{
+{	
+	Cast<AEnemyBaseClass>(GetCharacter())->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+
 	Cast<AEnemyBaseClass>(GetCharacter())->IsAttacking = false;
 	///// check for change /////
 	if (Cast<AEnemyBaseClass>(GetCharacter())->CanSeePlayer())
@@ -82,13 +84,18 @@ void AEnemy_AI_Controller::IdleState()
 	else
 	{
 		//Returnerer til startpunkt!!!
-		MoveToLocation(Cast<AEnemyBaseClass>(GetCharacter())->GetMyStartLocation(), 5.f, true, true, true, false, 0, true);
+		State = StateEnum::RETURN;
 	}
 }
 
 ///// FOLLOW /////
 void AEnemy_AI_Controller::ApproachState()
-{
+{	
+	if (!Cast<AEnemyBaseClass>(GetCharacter())->SlowdownActive)
+	{
+		Cast<AEnemyBaseClass>(GetCharacter())->GetCharacterMovement()->MaxWalkSpeed = 600.f;
+	}
+
 	// runs to the player
 	MoveToActor(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0), 5.f, true, true, true, 0, true);
 
@@ -111,7 +118,9 @@ void AEnemy_AI_Controller::ApproachState()
 
 ///// RETURN /////
 void AEnemy_AI_Controller::ReturnState()
-{
+{	
+	Cast<AEnemyBaseClass>(GetCharacter())->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+
 	Cast<AEnemyBaseClass>(GetCharacter())->IsAttacking = false;
 	// go home
 	FVector MyHome = Cast<AEnemyBaseClass>(GetCharacter())->GetMyStartLocation();

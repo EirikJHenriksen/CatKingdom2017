@@ -92,7 +92,7 @@ void AFinalBoss::Tick(float DeltaTime)
 		// Updates LookVector
 		UpdateDirection();
 
-		SetActorRotation(FRotator(0.f, LookVector.Rotation().Yaw, 0.f)); // + FRotator(0.f, 180.f, 0.f)
+		SetActorRotation(FRotator(0.f, LookVector.Rotation().Yaw, 0.f));
 	}
 	
 	if (fightInProgress && !IsDying)
@@ -405,7 +405,8 @@ void AFinalBoss::IntroPartTwo()
 	// Previous part is within the TeleportFirstStage() function.
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossIntroTwo, GetActorLocation(), 1.f);
 	GetWorld()->GetTimerManager().ClearTimer(IntroPartTwoTimerHandle);
-	VoiceIsActive = false;
+
+	GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 2.f, false);
 }
 
 void AFinalBoss::ResistAttack()

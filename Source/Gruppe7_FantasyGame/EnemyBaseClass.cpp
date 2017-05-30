@@ -33,12 +33,14 @@ AEnemyBaseClass::AEnemyBaseClass()
 	// Smooth rotations
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 180.f, 0.0f);
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 250.f, 0.0f);
 
 
 	// Sets various parameters
+	SlowdownActive = false;
+	
 	Roaming = false;
-
+	
 	WantsToGo = true;
 }
 
@@ -67,7 +69,7 @@ void AEnemyBaseClass::Tick(float DeltaTime)
 
 		WalkRandomly();
 
-		GetWorldTimerManager().SetTimer(WantsToGoTimerHandle, this, &AEnemyBaseClass::WalkRandomly, FMath::RandRange(1.f, 5.f), false);
+		GetWorldTimerManager().SetTimer(WantsToGoTimerHandle, this, &AEnemyBaseClass::WalkRandomly, FMath::RandRange(WantsToGoMin, WantsToGoMax), false);
 	}
 
 	if (RememberPain != 0)
@@ -140,12 +142,12 @@ void AEnemyBaseClass::UpdateDistance()
 void AEnemyBaseClass::WalkRandomly()
 {	
 	// JOBBE VIDER HERIFRA!!! Juster 500.f for å sette hvor langt de kan gå. Juster timerne!
-	RandomDestination = EnemyNavSys->GetRandomReachablePointInRadius(this, GetActorLocation(), 500.f);
+	RandomDestination = EnemyNavSys->GetRandomReachablePointInRadius(this, GetActorLocation(), WalkRadius);
 	Roaming = true;
 
 	GetWorld()->GetTimerManager().ClearTimer(WantsToGoTimerHandle);
 
-	GetWorldTimerManager().SetTimer(RoamingEndTimerHandle, this, &AEnemyBaseClass::WalkRandomlyEnd, FMath::RandRange(1.f, 5.f), false);
+	GetWorldTimerManager().SetTimer(RoamingEndTimerHandle, this, &AEnemyBaseClass::WalkRandomlyEnd, FMath::RandRange(RoamingMin, RoamingMax), false);
 }
 
 void AEnemyBaseClass::WalkRandomlyEnd()
@@ -331,7 +333,7 @@ void AEnemyBaseClass::Death()
 void AEnemyBaseClass::EnemyIsHit(float force, float duration)
 {
 	// Pushes back the enemy.
-	// FVector PlayerLocation = Cast<UFantasyGameInstance>(GetGameInstance())->GetPlayerLocation();
+	SlowdownActive = true;
 
 	FVector KnockbackVector = GetActorLocation() - CurrentPlayerLocation;
 	KnockbackVector.Normalize();
@@ -346,6 +348,7 @@ void AEnemyBaseClass::EnemyIsHit(float force, float duration)
 void AEnemyBaseClass::SlowdownOver()
 {
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
+	SlowdownActive = false;
 
 	GetWorld()->GetTimerManager().ClearTimer(SlowdownTimerHandle);
 }
@@ -377,7 +380,10 @@ bool AEnemyBaseClass::CanSeePlayer()
 			{
 				// Enemy physical attack. - should move to controller ///////////
 				if (DistanceToPlayer < 100.f)
-				{
+				{	
+					// Makes the character rotate instantly when in range.
+					SetActorRotation(FRotator(0.f, (CurrentPlayerLocation - GetActorLocation()).Rotation().Yaw, 0.f));
+
 					++AttackTimer;
 					if (AttackTimer > 30.f)
 					{
