@@ -48,6 +48,12 @@ void AWizard::Tick(float DeltaTime)
 
 		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AWizard::Spawn, FMath::RandRange(RandomMin, RandomMax), false);
 	}
+
+	if (QueueingSound)
+	{
+		SpawnedManaAudio();
+		QueueingSound = false;
+	}
 }
 
 void AWizard::IntroDialogue()
@@ -62,12 +68,9 @@ void AWizard::Spawn()
 {
 	GetWorld()->SpawnActor<AWizardCloud>(WizardCloudBlueprint, GetActorLocation() + GetActorForwardVector() * 200.f, GetActorRotation());
 	
-	if (!VoiceIsActive)
-	{	
-		VoiceIsActive = true;
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardNotifySpawn, GetActorLocation());
-		GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 3.f, false);
-	}
+		
+	QueueingSound = true;
+	
 
 	// Sets cooldown, before it can be spawned again.
 	GetWorldTimerManager().SetTimer(SpawnCooldownTimerHandle, this, &AWizard::SpawnCooldown, 15.f, false);
@@ -86,11 +89,12 @@ void AWizard::DialogueCheck()
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardPlayerDead, GetActorLocation(), 1.f, 1.f);
 	}
 	
-	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossAttack() && !VoiceIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
+	// 2/3 chance to play this sounde, because testing found it could be played too often, if NightNight shoots often
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossAttack() && !VoiceIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead() && (FMath::RandRange(0, 2) > 0))
 	{	
 		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardWarning, GetActorLocation(), 1.f, 1.f);
-		GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 2.f, false);
+		GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 4.f, false);
 	}
 
 	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead() && !VoiceIsActive)
@@ -113,3 +117,9 @@ void AWizard::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AWizard::SpawnedManaAudio()
+{
+	VoiceIsActive = true;
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardNotifySpawn, GetActorLocation());
+	GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 3.f, false);
+}

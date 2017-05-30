@@ -58,6 +58,8 @@ public:
 
 	void VoiceIsFinished();
 
+	void SpawnedManaAudio();
+
 	FTimerHandle IntroTimerHandle;
 
 	FTimerHandle VoiceFinishedTimerHandle;
@@ -87,6 +89,8 @@ public:
 	FTimerHandle SpawnTimerHandle;
 
 	bool cloudIsActive;
+
+	bool QueueingSound = false;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
