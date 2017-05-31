@@ -182,6 +182,8 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 
 		// Pushes the enemy back. They get slowed down for some time. (FORCE, DURATION).
 		EnemyIsHit(1000.f, 1.5f);
+
+		DeathCheck();
 	}
 
 	if (OtherActor->IsA(AKnockbackSphere::StaticClass()))
@@ -219,6 +221,8 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 
 		//Spiller av VFX.
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WaterHitFX, GetTransform(), true);
+
+		DeathCheck();
 	}
 
 	// Circle of thorns - NATURE
@@ -243,6 +247,7 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		}
 
 		EnemyIsHit(100.f, 3.f);
+		DeathCheck();
 	}
 
 	// Cone of fire - FIRE
@@ -265,20 +270,21 @@ void AEnemyBaseClass::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		default:
 			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("error - EnemyBaseClass - attacked"));
 		}
+		// every time enemy is hurt it will follow player for 150 frames, no matter what
+		
+		DeathCheck();
 	}
-
-	//Spiller av SFX.
-	float RandomValue = FMath::RandRange(0.8f, 1.2f);
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyHurtSound, GetActorLocation(), 0.5f, RandomValue);
-
-	// every time enemy is hurt it will follow player for 150 frames, no matter what
-	RememberPain = 150.f;
-	DeathCheck();
 }
 
 // Check if dead
 void AEnemyBaseClass::DeathCheck()
 {
+	//Spiller av SFX.
+	float RandomValue = FMath::RandRange(0.8f, 1.2f);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), EnemyHurtSound, GetActorLocation(), 0.5f, RandomValue);
+
+	RememberPain = 150.f;
+
 	// DIE
 	if (HealthPoints <= 0.f)
 	{	
