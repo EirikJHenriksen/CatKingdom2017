@@ -55,6 +55,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
 		int IntroTimer = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
+		bool bRemoveIntro = false;
+
 	// to display the cost of the next "crystal door"
 	// starts as 1 because that's the cost of the first door
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Variables")
