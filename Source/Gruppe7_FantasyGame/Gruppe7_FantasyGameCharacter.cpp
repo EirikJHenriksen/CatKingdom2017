@@ -659,6 +659,8 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
 
 			PlayerDamageSound(1);
+
+			DeathCheck();
 		}
 
 		if (OtherActor->IsA(ABossSpellFire::StaticClass()))
@@ -673,6 +675,8 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFX, GetTransform(), true);
 
 			PlayerDamageSound(2);
+
+			DeathCheck();
 		}
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -728,8 +732,6 @@ void AGruppe7_FantasyGameCharacter::OnOverlap(UPrimitiveComponent* OverlappedCom
 				AGruppe7_FantasyGameCharacter::PowerUp_Speed();
 			}
 		}
-
-		DeathCheck();
 	}
 }
 

@@ -341,6 +341,9 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			{
 				VoiceIsActive = true;
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+
+				DeathCheck();
+
 				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
 			}
 		}
@@ -364,6 +367,9 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			{
 				VoiceIsActive = true;
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+
+				DeathCheck();
+
 				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
 			}
 		}
@@ -387,6 +393,9 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			{	
 				VoiceIsActive = true;
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
+
+				DeathCheck();
+
 				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
 			}
 		}
@@ -395,8 +404,6 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			ResistAttack();
 		}
 	}
-
-	DeathCheck();
 }
 
 void AFinalBoss::IntroPartTwo()
