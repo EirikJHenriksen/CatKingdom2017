@@ -40,6 +40,7 @@ AEnemyBaseClass::AEnemyBaseClass()
 	SlowdownActive = false;
 	Roaming = false;
 	WantsToGo = true;
+	DestroyOnBossDeath = false;
 }
 
 // Called when the game starts or when spawned
@@ -75,8 +76,10 @@ void AEnemyBaseClass::Tick(float DeltaTime)
 		PainForgetter();
 	}
 
-	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead())
+	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead() && !DestroyOnBossDeath)
 	{	
+		DestroyOnBossDeath = true;
+
 		HealthPoints = 0.f;
 		DeathCheck();
 	}

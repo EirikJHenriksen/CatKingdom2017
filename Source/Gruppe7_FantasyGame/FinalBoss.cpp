@@ -83,7 +83,7 @@ void AFinalBoss::Tick(float DeltaTime)
 		VoiceIsActive = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossAnnoyed, GetActorLocation(), 1.f);
 
-		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::TeleportFirstStage, 3.f, false);
+		GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 4.f, false);
 	}
 		
 	// Turns boss towards player.
@@ -173,7 +173,6 @@ void AFinalBoss::SetRandomElement()
 	if (RandomElement == Element)
 	{
 		SetRandomElement();
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, TEXT("RETRY TO GET ELEMENT!!!"));
 	}
 }
 
@@ -337,13 +336,12 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			// Camera shake.
 			Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
+			DeathCheck();
+
 			if (!VoiceIsActive)
 			{
 				VoiceIsActive = true;
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
-
-				DeathCheck();
-
 				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
 			}
 		}
@@ -363,13 +361,12 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			// Camera shake.
 			Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
+			DeathCheck();
+
 			if (!VoiceIsActive)
 			{
 				VoiceIsActive = true;
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
-
-				DeathCheck();
-
 				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
 			}
 		}
@@ -389,13 +386,12 @@ void AFinalBoss::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor *Oth
 			// Camera shake.
 			Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->ClientPlayCameraShake(CameraShake, 1.f);
 
+			DeathCheck();
+
 			if (!VoiceIsActive)
 			{	
 				VoiceIsActive = true;
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), BossHurt, GetActorLocation());
-
-				DeathCheck();
-
 				GetWorldTimerManager().SetTimer(VoiceIsActiveTimerHandle, this, &AFinalBoss::VoiceIsFinished, 1.5f, false);
 			}
 		}

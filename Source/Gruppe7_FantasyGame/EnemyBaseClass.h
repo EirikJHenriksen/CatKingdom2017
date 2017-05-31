@@ -113,6 +113,8 @@ public:
 
 	bool SlowdownActive;
 
+	bool DestroyOnBossDeath;
+
 	UPROPERTY(EditAnywhere)
 		UNavigationSystem* EnemyNavSys;
 
