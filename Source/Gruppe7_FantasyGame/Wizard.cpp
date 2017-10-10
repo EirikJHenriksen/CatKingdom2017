@@ -89,19 +89,19 @@ void AWizard::DialogueCheck()
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardPlayerDead, GetActorLocation(), 1.f, 1.f);
 	}
 	
-	// 2/3 chance to play this sounde, because testing found it could be played too often, if NightNight shoots often
-	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossAttack() && !VoiceIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead() && (FMath::RandRange(0, 2) > 0))
-	{	
-		VoiceIsActive = true;
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardWarning, GetActorLocation(), 1.f, 1.f);
-		GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 4.f, false);
-	}
+	//// 2/3 chance to play this sounde, because testing found it could be played too often, if NightNight shoots often
+	//if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossAttack() && !VoiceIsActive && !Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead() && (FMath::RandRange(0, 2) > 0))
+	//{	
+	//	VoiceIsActive = true;
+	//	UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardWarning, GetActorLocation(), 1.f, 1.f);
+	//	GetWorldTimerManager().SetTimer(VoiceFinishedTimerHandle, this, &AWizard::VoiceIsFinished, 4.f, false);
+	//}
 
-	if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead() && !VoiceIsActive)
-	{
-		VoiceIsActive = true;
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardWin, GetActorLocation(), 1.f, 1.f);
-	}
+	//if (Cast<UFantasyGameInstance>(GetGameInstance())->GetBossIsDead() && !VoiceIsActive)
+	//{
+	//	VoiceIsActive = true;
+	//	UGameplayStatics::PlaySoundAtLocation(GetWorld(), WizardWin, GetActorLocation(), 1.f, 1.f);
+	//}
 }
 
 void AWizard::VoiceIsFinished()
